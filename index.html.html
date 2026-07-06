@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SL CRM</title>
+<style>
+:root{--bg:#0d1117;--surf:#161b22;--card:#1c2128;--brd:#30363d;--acc:#58a6ff;--grn:#3fb950;--amb:#d29922;--red:#f85149;--pur:#bc8cff;--lead:#58a6ff;--cb:#f59e0b;--fu:#bc8cff;--dep:#3fb950;--txt:#e6edf3;--mut:#8b949e;--dim:#484f58;--r:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Inter','Segoe UI',system-ui,sans-serif;font-size:14px;display:flex;min-height:100vh}
+button,input,select,textarea{font-family:inherit}
+
+/* SIDEBAR */
+.side{width:200px;min-width:200px;background:var(--surf);border-right:1px solid var(--brd);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:60;overflow-y:auto}
+.logo{padding:16px;border-bottom:1px solid var(--brd)}
+.logo-n{font-size:18px;font-weight:800;letter-spacing:-1px}.logo-n em{color:var(--acc);font-style:normal}
+.logo-s{font-size:10px;color:var(--mut);margin-top:2px}
+.nav{padding:8px;flex:1}
+.nlbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;padding:10px 8px 4px}
+.nb{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--mut);border:none;background:none;width:100%;text-align:left;transition:all .15s;margin-bottom:1px}
+.nb:hover{background:var(--card);color:var(--txt)}.nb.on{background:rgba(88,166,255,.12);color:var(--acc)}
+.npill{margin-left:auto;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:700}
+.p-l{background:rgba(88,166,255,.2);color:var(--lead)}.p-c{background:rgba(245,158,11,.2);color:var(--cb)}
+.p-f{background:rgba(188,140,255,.2);color:var(--pur)}.p-d{background:rgba(63,185,80,.2);color:var(--dep)}
+.p-n{background:rgba(248,81,73,.2);color:#ff7b72}
+.p-na{background:rgba(139,148,158,.22);color:#adbac7}
+.sfoot{padding:12px;border-top:1px solid var(--brd);font-size:11px;color:var(--dim)}
+
+/* MAIN */
+.main{margin-left:200px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surf);border-bottom:1px solid var(--brd);padding:11px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.tb-ttl{font-size:15px;font-weight:600;flex:1}
+.srch{position:relative}.srch input{background:var(--card);border:1px solid var(--brd);color:var(--txt);border-radius:var(--r);padding:7px 10px 7px 30px;font-size:13px;width:200px;outline:none}
+.srch input:focus{border-color:var(--acc)}.srch-i{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--mut);width:13px;height:13px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btp{background:var(--acc);color:#0d1117}.btp:hover{opacity:.85}
+.btg{background:var(--card);color:var(--txt);border:1px solid var(--brd)}.btg:hover{border-color:var(--acc);color:var(--acc)}
+
+/* CONTENT */
+.content{padding:18px;flex:1}
+.pg{display:none}.pg.on{display:block}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:16px}
+.sc{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:border-color .15s}
+.sc:hover{border-color:var(--acc)}.sc-l{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.sc-v{font-size:22px;font-weight:700;letter-spacing:-1px}.sc-s{font-size:11px;color:var(--mut);margin-top:2px}
+
+/* FILTERS */
+.frow{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.fb{padding:5px 11px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--brd);background:var(--card);color:var(--mut);transition:all .15s}
+.fb:hover,.fb.on{border-color:var(--acc);color:var(--acc);background:rgba(88,166,255,.08)}
+.fsel{padding:5px 9px;border-radius:var(--r);font-size:12px;border:1px solid var(--brd);background:var(--card);color:var(--txt);outline:none;cursor:pointer}
+
+/* TABLE */
+.tw{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden}
+.th{padding:11px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.tt{font-size:13px;font-weight:600}.tc{font-size:12px;color:var(--mut)}
+table{width:100%;border-collapse:collapse}
+thead th{background:rgba(255,255,255,.02);padding:8px 11px;text-align:left;font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--brd);font-weight:500;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--brd);cursor:pointer;transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody td{padding:9px 11px;font-size:13px;vertical-align:middle}
+
+/* BADGES */
+.bge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.bc{background:rgba(88,166,255,.15);color:#79b8ff}.bm{background:rgba(210,153,34,.15);color:#e3b341}
+.bd{background:rgba(63,185,80,.15);color:#56d364}.bf{background:rgba(188,140,255,.15);color:#d2a8ff}
+.bh{background:rgba(255,165,0,.18);color:#ffa500}.bo{background:rgba(139,148,158,.1);color:var(--mut)}
+.sb{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.sl{background:rgba(88,166,255,.15);color:var(--lead)}.scb{background:rgba(245,158,11,.15);color:var(--cb)}
+.sfu{background:rgba(188,140,255,.15);color:var(--pur)}.sdp{background:rgba(63,185,80,.15);color:var(--dep)}
+.sni{background:rgba(248,81,73,.15);color:#ff7b72}
+.sna{background:rgba(139,148,158,.18);color:#adbac7}
+.star{cursor:pointer;color:var(--dim);font-size:14px;background:none;border:none;padding:2px;transition:color .1s}
+.star.lit{color:var(--amb)}
+
+/* LEAD DETAIL */
+.ld-wrap{max-width:900px}
+.ld-nav{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--brd)}
+.back-btn{display:flex;align-items:center;gap:5px;color:var(--mut);cursor:pointer;font-size:13px;background:none;border:none;transition:color .15s}
+.back-btn:hover{color:var(--txt)}
+.nav-arrows{display:flex;gap:6px;margin-left:auto;align-items:center}
+.arr{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--r);border:1px solid var(--brd);background:var(--card);color:var(--txt);cursor:pointer;transition:all .15s;font-size:16px}
+.arr:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}.arr:disabled{opacity:.25;cursor:not-allowed}
+.ld-pos{font-size:12px;color:var(--mut)}
+.ld-hdr{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}
+.ld-av{width:60px;height:60px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex-shrink:0;letter-spacing:-1px}
+.ld-info h2{font-size:20px;font-weight:700;letter-spacing:-.5px;margin-bottom:3px}
+.ld-info .sub{font-size:13px;color:var(--mut);margin-bottom:8px}
+.ld-meta-row{display:flex;gap:7px;flex-wrap:wrap}
+.ld-grid{display:grid;grid-template-columns:1fr 310px;gap:14px}
+.ld-l,.ld-r{display:flex;flex-direction:column;gap:12px}
+.crd{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px}
+.crd-t{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;font-weight:500}
+.ir{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;gap:10px}
+.ir:last-child{border-bottom:none}.il{color:var(--mut);flex-shrink:0}.iv{font-weight:500;text-align:right;word-break:break-word}
+.st-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.st-opt{padding:11px 8px;border-radius:var(--r);border:2px solid var(--brd);background:var(--surf);cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:var(--mut);transition:all .15s;user-select:none}
+.st-opt:hover{border-color:var(--mut);color:var(--txt)}
+.st-l.on{border-color:var(--lead);color:var(--lead);background:rgba(88,166,255,.08)}
+.st-c.on{border-color:var(--cb);color:var(--cb);background:rgba(245,158,11,.08)}
+.st-f.on{border-color:var(--pur);color:var(--pur);background:rgba(188,140,255,.08)}
+.st-d.on{border-color:var(--dep);color:var(--dep);background:rgba(63,185,80,.08)}
+.st-n.on{border-color:var(--red);color:#ff7b72;background:rgba(248,81,73,.08)}
+.st-na.on{border-color:var(--mut);color:#adbac7;background:rgba(139,148,158,.1)}
+.notebox{width:100%;padding:10px 12px;border-radius:var(--r);background:var(--bg);border:1px solid var(--brd);color:var(--txt);font-size:13px;resize:vertical;min-height:90px;outline:none;line-height:1.6}
+.notebox:focus{border-color:var(--acc)}.notebox::placeholder{color:var(--dim)}
+.note-item{background:var(--bg);border:1px solid var(--brd);border-radius:6px;padding:10px 12px;margin-bottom:7px}
+.note-time{font-size:10px;color:var(--dim);margin-bottom:4px;display:flex;justify-content:space-between}
+.note-body{font-size:13px;color:var(--txt);line-height:1.5;white-space:pre-wrap}
+.note-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:11px;padding:0}
+.note-del:hover{color:var(--red)}
+.act-item{display:flex;gap:9px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;align-items:flex-start}
+.act-item:last-child{border-bottom:none}.act-dot{width:6px;height:6px;border-radius:50%;background:var(--acc);flex-shrink:0;margin-top:4px}
+.act-txt{color:var(--mut);flex:1}.act-time{color:var(--dim);font-size:10px;white-space:nowrap}
+
+/* PIPELINE */
+.pipe{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px}
+.pc{min-width:210px;flex-shrink:0}
+.ph{padding:9px 12px;border-radius:var(--r) var(--r) 0 0;font-size:12px;font-weight:700;display:flex;justify-content:space-between}
+.pb{border:1px solid var(--brd);border-top:none;border-radius:0 0 var(--r) var(--r);min-height:80px;padding:8px;background:var(--card)}
+.pcard{background:var(--surf);border:1px solid var(--brd);border-radius:6px;padding:9px 10px;margin-bottom:6px;cursor:pointer;transition:border-color .15s}
+.pcard:hover{border-color:var(--acc)}.pcard-n{font-size:13px;font-weight:500;margin-bottom:2px}.pcard-c{font-size:11px;color:var(--mut)}
+
+/* COMPANY */
+.cogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.cocard{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;cursor:pointer;transition:border-color .15s}
+.cocard:hover{border-color:var(--acc)}.co-n{font-size:14px;font-weight:600;margin-bottom:3px}.co-s{font-size:11px;color:var(--mut);margin-bottom:10px}
+.co-row{display:flex;gap:14px}.co-sv{font-size:17px;font-weight:700;color:var(--acc)}.co-sl{font-size:10px;color:var(--mut)}
+
+.empty{text-align:center;padding:36px;color:var(--mut)}.ei{font-size:28px;opacity:.3;margin-bottom:8px}
+.toast{position:fixed;bottom:20px;right:20px;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:600;z-index:999;transform:translateY(60px);transition:transform .25s;pointer-events:none}
+.toast.show{transform:translateY(0)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:flex-start;justify-content:center;padding:54px 16px;overflow-y:auto}
+.modal-bg.show{display:flex}
+.modal{background:var(--surf);border:1px solid var(--brd);border-radius:12px;padding:20px;width:100%;max-width:620px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-h{display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:16px}
+.modal-x{background:none;border:none;color:var(--mut);font-size:18px;cursor:pointer}.modal-x:hover{color:var(--txt)}
+
+@media(max-width:800px){.side{width:52px;min-width:52px}.logo-n,.logo-s,.nb span,.nlbl,.npill,.sfoot{display:none}.nb{justify-content:center;padding:10px}.main{margin-left:52px}.stats{grid-template-columns:repeat(2,1fr)}.ld-grid{grid-template-columns:1fr}.srch input{width:140px}}
+</style>
+</head>
+<body>
+
+<div id="authGate" style="position:fixed;inset:0;z-index:500;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:340px;background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:26px">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:2px">SL<span style="color:var(--acc)">CRM</span></div>
+    <div id="auth-sub" style="font-size:12px;color:var(--mut);margin-bottom:18px">Sign in to continue</div>
+    <input id="auth-user" class="notebox" style="min-height:auto;padding:10px 12px;margin-bottom:10px" placeholder="Username" autocomplete="off">
+    <input id="auth-pass" type="password" class="notebox" style="min-height:auto;padding:10px 12px" placeholder="Password" onkeydown="if(event.key==='Enter')authSubmit()">
+    <input id="auth-pass2" type="password" class="notebox" style="min-height:auto;padding:10px 12px;margin-top:10px;display:none" placeholder="Confirm password" onkeydown="if(event.key==='Enter')authSubmit()">
+    <button class="btn btp" id="auth-btn" style="width:100%;justify-content:center;margin-top:14px;padding:10px" onclick="authSubmit()">Sign in</button>
+    <div id="auth-msg" style="font-size:12px;color:var(--red);margin-top:10px;min-height:16px"></div>
+  </div>
+</div>
+
+<nav class="side">
+  <div class="logo"><div class="logo-n">SL<em>CRM</em></div><div class="logo-s">Sri Lanka Executive Hub</div></div>
+  <div class="nav">
+    <div class="nlbl">Views</div>
+    <button class="nb on" onclick="showPg('contacts',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>All Contacts</span>
+    </button>
+    <button class="nb" onclick="showPg('companies',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg><span>Companies</span>
+    </button>
+    <button class="nb" onclick="showPg('pipeline',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg><span>Pipeline</span>
+    </button>
+    <button class="nb" onclick="showPg('starred',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Starred</span>
+    </button>
+    <button class="nb" id="nav-users" style="display:none" onclick="showPg('users',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Users</span>
+    </button>
+    <div class="nlbl">By Status</div>
+    <button class="nb" onclick="filterSt('lead');showPg('contacts',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>Leads</span><span class="npill p-l" id="cnt-l">0</span>
+    </button>
+    <button class="nb" onclick="filterSt('callback');showPg('contacts',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 015.12 12.5 19.79 19.79 0 012.05 3.88 2 2 0 014 1.89h3a2 2 0 012 1.72c.127.96.361 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.34 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      <span>Call Back</span><span class="npill p-c" id="cnt-c">0</span>
+    </button>
+    <button class="nb" onclick="filterSt('followup');showPg('contacts',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Follow Up</span><span class="npill p-f" id="cnt-f">0</span>
+    </button>
+    <button class="nb" onclick="filterSt('deposited');showPg('contacts',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>Deposited</span><span class="npill p-d" id="cnt-d">0</span>
+    </button>
+    <button class="nb" onclick="filterSt('notint');showPg('contacts',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <span>Not Interested</span><span class="npill p-n" id="cnt-n">0</span>
+    </button>
+    <button class="nb" onclick="filterSt('noans');showPg('contacts',this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      <span>No Answer</span><span class="npill p-na" id="cnt-na">0</span>
+    </button>
+  </div>
+  <div class="sfoot" id="sf">Loading...</div>
+  <div style="padding:9px 12px;border-top:1px solid var(--brd);font-size:11px;color:var(--mut);display:flex;align-items:center;justify-content:space-between;gap:8px">
+    <span id="who" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span>
+    <button onclick="logout()" style="background:none;border:1px solid var(--brd);color:var(--mut);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11px;flex-shrink:0">Logout</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <span class="tb-ttl" id="pg-ttl">All Contacts</span>
+    <div class="srch">
+      <svg class="srch-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="srch" placeholder="Search name, company, role..." oninput="applyF()">
+    </div>
+    <button class="btn btp" id="btn-addlead" style="display:none" onclick="openAdd()">＋ Add Lead</button>
+    <button class="btn btg" onclick="expCSV()">⬇ Export CSV</button>
+  </div>
+
+  <div class="content">
+
+    <!-- CONTACTS -->
+    <div class="pg on" id="pg-contacts">
+      <div class="stats">
+        <div class="sc" onclick="filterSt('')"><div class="sc-l">Total</div><div class="sc-v" style="color:var(--acc)" id="st-all">0</div><div class="sc-s">All contacts</div></div>
+        <div class="sc" onclick="filterSt('lead')"><div class="sc-l">Leads</div><div class="sc-v" style="color:var(--lead)" id="st-l">0</div><div class="sc-s">New prospects</div></div>
+        <div class="sc" onclick="filterSt('callback')"><div class="sc-l">Call Back</div><div class="sc-v" style="color:var(--cb)" id="st-c">0</div><div class="sc-s">Awaiting call</div></div>
+        <div class="sc" onclick="filterSt('followup')"><div class="sc-l">Follow Up</div><div class="sc-v" style="color:var(--pur)" id="st-f">0</div><div class="sc-s">In progress</div></div>
+        <div class="sc" onclick="filterSt('deposited')"><div class="sc-l">Deposited</div><div class="sc-v" style="color:var(--dep)" id="st-d">0</div><div class="sc-s">Converted ✓</div></div>
+        <div class="sc" onclick="filterSt('notint')"><div class="sc-l">Not Interested</div><div class="sc-v" style="color:#ff7b72" id="st-n">0</div><div class="sc-s">Passed ✕</div></div>
+        <div class="sc" onclick="filterSt('noans')"><div class="sc-l">No Answer</div><div class="sc-v" style="color:#adbac7" id="st-na">0</div><div class="sc-s">Try again</div></div>
+      </div>
+      <div class="frow">
+        <button class="fb on" id="fb-all" onclick="setRF('all',this)">All roles</button>
+        <button class="fb" onclick="setRF('ceo',this)">CEO</button>
+        <button class="fb" onclick="setRF('md',this)">MD</button>
+        <button class="fb" onclick="setRF('dir',this)">Director</button>
+        <button class="fb" onclick="setRF('cfo',this)">CFO</button>
+        <button class="fb" onclick="setRF('hnwi',this)">HNWI</button>
+        <select class="fsel" id="secf" onchange="applyF()">
+          <option value="">All sectors</option>
+          <option>Conglomerate</option><option>Telecom</option>
+          <option>Apparel</option><option>Retail / FMCG</option><option>Finance</option>
+          <option>Security</option><option>Engineering</option><option>Tea / Exports</option><option>HNWI</option>
+          <option>Manufacturing</option><option>Energy</option><option>Hospitality</option><option>Real Estate</option>
+          <option>Construction</option><option>Logistics</option><option>Automotive</option><option>IT / Tech</option><option>Food / FMCG</option>
+          <option>Jewellery &amp; Gems</option><option>Textile / Pettah</option><option>Hardware &amp; Steel</option>
+        </select>
+        <select class="fsel" id="repf" onchange="applyF()">
+          <option value="">All reps</option>
+          <option value="__un">Unassigned</option>
+        </select>
+      </div>
+      <div class="tw">
+        <div class="th"><span class="tt">Executive Directory</span><span class="tc" id="tbl-c">Loading...</span></div>
+        <table>
+          <thead><tr><th width="28"></th><th>Name</th><th>Company</th><th>Title</th><th>Sector</th><th>Phone</th><th>Status</th></tr></thead>
+          <tbody id="ctb"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LEAD DETAIL -->
+    <div class="pg" id="pg-lead">
+      <div class="ld-wrap">
+        <div class="ld-nav">
+          <button class="back-btn" onclick="goBack()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back to contacts
+          </button>
+          <span class="ld-pos" id="ld-pos"></span>
+          <button class="btn btg" id="btn-del" style="display:none;border-color:var(--red);color:#ff7b72;margin-left:12px" onclick="delCurrent()">🗑 Delete</button>
+          <div class="nav-arrows">
+            <button class="arr" id="btn-prev" onclick="navL(-1)">&#8592; Prev</button>
+            <button class="arr" id="btn-next" onclick="navL(1)">Next &#8594;</button>
+          </div>
+        </div>
+        <div class="ld-hdr">
+          <div class="ld-av" id="ld-av"></div>
+          <div class="ld-info">
+            <h2 id="ld-name"></h2>
+            <div class="sub" id="ld-role"></div>
+            <div class="ld-meta-row" id="ld-meta"></div>
+          </div>
+        </div>
+        <div class="ld-grid">
+          <div class="ld-l">
+            <div class="crd">
+              <div class="crd-t" style="display:flex;justify-content:space-between;align-items:center">Contact Details <button class="btn btg" id="btn-edit" style="padding:3px 9px;font-size:11px;display:none" onclick="editCurrent()">✎ Edit</button></div>
+              <div class="ir"><span class="il">Company</span><span class="iv" id="ld-co"></span></div>
+              <div class="ir"><span class="il">Sector</span><span class="iv" id="ld-sec"></span></div>
+              <div class="ir"><span class="il">Direct Line</span><span class="iv" id="ld-ph"></span></div>
+              <div class="ir"><span class="il">Head Office</span><span class="iv" id="ld-hq"></span></div>
+              <div class="ir"><span class="il">Email</span><span class="iv" id="ld-em"></span></div>
+              <div class="ir"><span class="il">LinkedIn</span><span class="iv" id="ld-li"></span></div>
+              <div class="ir"><span class="il">Address</span><span class="iv" id="ld-addr"></span></div>
+              <div class="ir"><span class="il">Net Worth / Note</span><span class="iv" id="ld-w"></span></div>
+            </div>
+            <div class="crd">
+              <div class="crd-t">Notes &amp; Updates</div>
+              <textarea class="notebox" id="ld-ni" placeholder="Type your call summary, update or note here..."></textarea>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                <button class="btn btp" style="font-size:12px;padding:6px 12px" onclick="saveNote()">Save note</button>
+                <span id="note-ok" style="display:none;color:var(--grn);font-size:12px;font-weight:600">✓ Saved!</span>
+              </div>
+              <div id="ld-notes" style="margin-top:12px"></div>
+            </div>
+          </div>
+          <div class="ld-r">
+            <div class="crd">
+              <div class="crd-t">Lead Status</div>
+              <div class="st-grid">
+                <div class="st-opt st-l" data-s="lead" onclick="setSt('lead')">📋 Lead</div>
+                <div class="st-opt st-c" data-s="callback" onclick="setSt('callback')">📞 Call Back</div>
+                <div class="st-opt st-f" data-s="followup" onclick="setSt('followup')">✉️ Follow Up</div>
+                <div class="st-opt st-d" data-s="deposited" onclick="setSt('deposited')">✅ Deposited</div>
+                <div class="st-opt st-n" data-s="notint" onclick="setSt('notint')">🚫 Not Interested</div>
+                <div class="st-opt st-na" data-s="noans" onclick="setSt('noans')">🔕 No Answer</div>
+              </div>
+            </div>
+            <div class="crd">
+              <div class="crd-t">Assigned To (rep)</div>
+              <div style="display:flex;gap:6px">
+                <input id="ld-as" class="notebox" style="min-height:auto;padding:7px 10px;flex:1" placeholder="Rep name / email">
+                <button class="btn btp" style="padding:6px 12px;font-size:12px" onclick="assignCurrent()">Set</button>
+              </div>
+            </div>
+            <div class="crd" style="display:flex;align-items:center;gap:12px">
+              <div style="flex:1"><div class="crd-t" style="margin-bottom:3px">Priority</div><div style="font-size:12px;color:var(--mut)">Star to pin this contact</div></div>
+              <button class="star" id="ld-star" onclick="toggleStarD()" style="font-size:26px">★</button>
+            </div>
+            <div class="crd">
+              <div class="crd-t">Activity Log</div>
+              <div id="ld-act" style="max-height:260px;overflow-y:auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPANIES -->
+    <div class="pg" id="pg-companies"><div class="cogrid" id="cogrid"></div></div>
+
+    <!-- PIPELINE -->
+    <div class="pg" id="pg-pipeline">
+      <p style="color:var(--mut);font-size:13px;margin-bottom:14px">Contacts organised by status. Click any card to open the lead.</p>
+      <div class="pipe" id="pipe"></div>
+    </div>
+
+    <!-- STARRED -->
+    <div class="pg" id="pg-starred">
+      <div class="tw">
+        <div class="th"><span class="tt">Starred Contacts</span><span class="tc" id="star-c"></span></div>
+        <table><thead><tr><th width="28"></th><th>Name</th><th>Company</th><th>Title</th><th>Phone</th><th>Status</th></tr></thead>
+        <tbody id="stb"></tbody></table>
+      </div>
+    </div>
+
+    <!-- USERS (ADMIN) -->
+    <div class="pg" id="pg-users">
+      <div class="crd" style="max-width:640px;margin-bottom:16px">
+        <div class="crd-t">Add a user</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div><label class="il" style="display:block;margin-bottom:4px">Username</label><input id="u-name" class="notebox" style="min-height:auto;padding:8px 10px" autocomplete="off"></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Password</label><input id="u-pass" class="notebox" style="min-height:auto;padding:8px 10px" autocomplete="off"></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Role</label><select id="u-role" class="fsel" style="width:100%"><option value="user">Rep (sees all leads)</option><option value="admin">Admin</option></select></div>
+        </div>
+        <div style="margin-top:12px"><button class="btn btp" onclick="addUser()">+ Add user</button></div>
+      </div>
+      <div class="tw">
+        <div class="th"><span class="tt">Users &amp; passwords</span><span class="tc" id="users-c"></span></div>
+        <table>
+          <thead><tr><th>Username</th><th>Role</th><th>Password</th><th width="80"></th></tr></thead>
+          <tbody id="utb"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD LEAD MODAL -->
+    <div id="addModal" class="modal-bg" onclick="if(event.target===this)closeAdd()">
+      <div class="modal">
+        <div class="modal-h"><span id="modal-title">➕ Add a lead to your list</span><button class="modal-x" onclick="closeAdd()">✕</button></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label class="il" style="display:block;margin-bottom:4px">Name *</label><input id="m-n" class="notebox" style="min-height:auto;padding:8px 10px" placeholder="Full name"></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Company</label><input id="m-c" class="notebox" style="min-height:auto;padding:8px 10px" placeholder="Company name"></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Title / Role</label><input id="m-t" class="notebox" style="min-height:auto;padding:8px 10px" placeholder="e.g. Director"></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Role badge</label><select id="m-ty" class="fsel" style="width:100%"><option value="ceo">CEO</option><option value="md">MD</option><option value="dir">Director</option><option value="cfo">CFO</option><option value="hnwi">HNWI</option><option value="other" selected>Senior / Other</option></select></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Sector</label><input id="m-s" class="notebox" style="min-height:auto;padding:8px 10px" placeholder="e.g. Manufacturing"></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Phone</label><input id="m-p" class="notebox" style="min-height:auto;padding:8px 10px" placeholder="e.g. 011 234 5678"></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Email</label><input id="m-em" class="notebox" style="min-height:auto;padding:8px 10px" placeholder="optional"></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Status</label><select id="m-status" class="fsel" style="width:100%"><option value="lead" selected>📋 Lead</option><option value="callback">📞 Call Back</option><option value="followup">✉️ Follow Up</option><option value="deposited">✅ Deposited</option><option value="notint">🚫 Not Interested</option><option value="noans">🔕 No Answer</option></select></div>
+          <div><label class="il" style="display:block;margin-bottom:4px">Assigned to (rep)</label><input id="m-assigned" class="notebox" style="min-height:auto;padding:8px 10px" placeholder="rep name / email"></div>
+          <div style="grid-column:1 / -1"><label class="il" style="display:block;margin-bottom:4px">Net worth / note</label><input id="m-w" class="notebox" style="min-height:auto;padding:8px 10px" placeholder="optional"></div>
+          <input type="hidden" id="m-addr" value="">
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn btp" id="modal-save" onclick="saveLead()">Add to my leads</button>
+          <button class="btn btg" onclick="closeAdd()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════ DATA ═══════════════════
+var COLS = ['#58a6ff','#7c5cfc','#14b8a6','#d29922','#3fb950','#f85149','#f97316','#06b6d4','#a855f7','#84cc16','#e879f9','#fb923c'];
+
+var DATA = [
+  {id:1,n:"Krishan Balendra",c:"John Keells Holdings PLC",t:"Chairman & CEO",ty:"ceo",s:"Conglomerate",p:"011 230 6000",hq:"011 230 6000",addr:"117, Sir Chittampalam A Gardiner Mw, Col 02",w:"~$500M (JKH family stake)"},
+  {id:2,n:"Gihan Cooray",c:"John Keells Holdings PLC",t:"Deputy Chairperson / Group Finance Director",ty:"dir",s:"Conglomerate",p:"011 230 6000",hq:"011 230 6000",addr:"117, Sir Chittampalam A Gardiner Mw, Col 02",w:"—"},
+  {id:3,n:"Ramesh Shanmuganathan",c:"John Keells Holdings PLC",t:"Group CIO & Executive VP",ty:"other",s:"Conglomerate",p:"011 231 3000",hq:"011 230 6000",addr:"90, Union Place, Colombo 02",w:"—"},
+  {id:4,n:"Susantha Ratnayake",c:"John Keells Holdings PLC",t:"Director",ty:"dir",s:"Conglomerate",p:"011 230 6000",hq:"011 230 6000",addr:"117, Sir Chittampalam A Gardiner Mw, Col 02",w:"—"},
+  {id:5,n:"Sherin Cader",c:"John Keells Holdings PLC",t:"CFO - Financial Services",ty:"cfo",s:"Conglomerate",p:"011 230 6000",hq:"011 230 6000",addr:"117, Sir Chittampalam A Gardiner Mw, Col 02",w:"—"},
+  {id:10,n:"Ishara Nanayakkara",c:"LOLC Holdings PLC",t:"Executive Deputy Chairman",ty:"hnwi",s:"Finance",p:"011 557 5900",hq:"011 557 5900",addr:"100/1, Sri Jayawardenapura Mw, Rajagiriya",w:"~$1.6 Billion - #1 Richest in Sri Lanka"},
+  {id:11,n:"Kapila Jayawardena",c:"LOLC Holdings PLC",t:"Group MD & CEO",ty:"ceo",s:"Finance",p:"011 557 5900",hq:"011 557 5900",addr:"100/1, Sri Jayawardenapura Mw, Rajagiriya",w:"—"},
+  {id:12,n:"Kithsiri Gunawardena",c:"LOLC Holdings PLC",t:"Chief Operating Officer",ty:"other",s:"Finance",p:"011 557 5900",hq:"011 557 5900",addr:"100/1, Sri Jayawardenapura Mw, Rajagiriya",w:"—"},
+  {id:13,n:"Conrad Dias",c:"LOLC Holdings PLC",t:"Director / Chairman - LOLC Finance",ty:"dir",s:"Finance",p:"011 557 5900",hq:"011 557 5900",addr:"100/1, Sri Jayawardenapura Mw, Rajagiriya",w:"—"},
+  {id:14,n:"Krishan Thilakaratne",c:"LOLC Holdings PLC",t:"Director/CEO - LOLC Finance",ty:"md",s:"Finance",p:"011 557 5900",hq:"011 557 5900",addr:"100/1, Sri Jayawardenapura Mw, Rajagiriya",w:"—"},
+  {id:15,n:"Supun Weerasinghe",c:"Dialog Axiata PLC",t:"Group Chief Executive",ty:"ceo",s:"Telecom",p:"011 767 8700",hq:"011 767 8700",addr:"475, Union Place, Colombo 02",w:"—"},
+  {id:16,n:"Vivek Sood",c:"Dialog Axiata PLC",t:"Chairman (Non-Executive)",ty:"dir",s:"Telecom",p:"011 767 8700",hq:"011 767 8700",addr:"475, Union Place, Colombo 02",w:"—"},
+  {id:17,n:"Lim Li San",c:"Dialog Axiata PLC",t:"Group Chief Operating Officer",ty:"other",s:"Telecom",p:"011 767 8700",hq:"011 767 8700",addr:"475, Union Place, Colombo 02",w:"—"},
+  {id:18,n:"Munesh Murugiah",c:"Dialog Axiata PLC",t:"Group Chief Financial Officer",ty:"cfo",s:"Telecom",p:"011 767 8700",hq:"011 767 8700",addr:"475, Union Place, Colombo 02",w:"—"},
+  {id:19,n:"Rekha Weerasooriya",c:"Dialog Axiata PLC",t:"Group Chief People Officer",ty:"other",s:"Telecom",p:"011 767 8700",hq:"011 767 8700",addr:"475, Union Place, Colombo 02",w:"—"},
+  {id:34,n:"Arjuna Kumarasinghe",c:"Cargills (Ceylon) PLC",t:"Managing Director",ty:"md",s:"Retail / FMCG",p:"011 236 7500",hq:"011 236 7500",addr:"40, York Street, Colombo 01",w:"—"},
+  {id:35,n:"Geetha Yasanayake",c:"Cargills (Ceylon) PLC",t:"Group Chief HR Officer",ty:"other",s:"Retail / FMCG",p:"011 236 7500",hq:"011 236 7500",addr:"40, York Street, Colombo 01",w:"—"},
+  {id:36,n:"Prabhu Mathavan",c:"Cargills (Ceylon) PLC",t:"Director - Finance",ty:"dir",s:"Retail / FMCG",p:"011 236 7500",hq:"011 236 7500",addr:"40, York Street, Colombo 01",w:"—"},
+  {id:37,n:"Mahesh Amalean",c:"MAS Holdings (Pvt) Ltd",t:"Chairman",ty:"hnwi",s:"Apparel",p:"011 249 5000",hq:"011 249 5000",addr:"MAS Holdings, Colombo 03",w:"~$400M (Amalean family)"},
+  {id:38,n:"Sharad Amalean",c:"MAS Holdings (Pvt) Ltd",t:"Co-founder / Director",ty:"dir",s:"Apparel",p:"011 249 5000",hq:"011 249 5000",addr:"MAS Holdings, Colombo 03",w:"—"},
+  {id:39,n:"Ajay Amalean",c:"MAS Holdings (Pvt) Ltd",t:"Co-founder / Director",ty:"dir",s:"Apparel",p:"011 249 5000",hq:"011 249 5000",addr:"MAS Holdings, Colombo 03",w:"—"},
+  {id:40,n:"Suren Fernando",c:"MAS Holdings (Pvt) Ltd",t:"Group CEO",ty:"ceo",s:"Apparel",p:"011 249 5000",hq:"011 249 5000",addr:"MAS Holdings, Colombo 03",w:"—"},
+  {id:41,n:"Ashroff Omar",c:"Brandix Lanka Limited",t:"Group CEO",ty:"ceo",s:"Apparel",p:"011 481 8000",hq:"011 481 8000",addr:"150/1, Kynsey Road, Colombo 08",w:"~$300M est."},
+  {id:42,n:"Charindra Premaratne",c:"Brandix Lanka Limited",t:"Managing Director",ty:"md",s:"Apparel",p:"011 481 8000",hq:"011 481 8000",addr:"150/1, Kynsey Road, Colombo 08",w:"—"},
+  {id:43,n:"Ashok Pathirage",c:"Softlogic Holdings PLC",t:"Chairman & MD",ty:"hnwi",s:"Finance",p:"011 557 5000",hq:"011 557 5000",addr:"14, De Fonseka Place, Colombo 05",w:"~$200M est."},
+  {id:44,n:"Hemantha Gunawardena",c:"Softlogic Holdings PLC",t:"Executive Director",ty:"dir",s:"Finance",p:"011 557 5000",hq:"011 557 5000",addr:"14, De Fonseka Place, Colombo 05",w:"—"},
+  {id:45,n:"Haresh Kaimal",c:"Softlogic Holdings PLC",t:"Executive Director - IT",ty:"dir",s:"Finance",p:"011 557 5000",hq:"011 557 5000",addr:"14, De Fonseka Place, Colombo 05",w:"—"},
+  {id:46,n:"Hasitha Jayawardena",c:"Melstacorp PLC",t:"Chairman",ty:"dir",s:"Conglomerate",p:"011 243 1720",hq:"011 243 1720",addr:"110, Norris Canal Road, Colombo 10",w:"Harry Jayawardena family"},
+  {id:47,n:"Jude Fernando",c:"Melstacorp PLC",t:"Group CEO",ty:"ceo",s:"Conglomerate",p:"011 243 1720",hq:"011 243 1720",addr:"110, Norris Canal Road, Colombo 10",w:"—"},
+  {id:48,n:"Stasshani Jayawardena",c:"Aitken Spence PLC",t:"Chairperson",ty:"dir",s:"Conglomerate",p:"011 230 8308",hq:"011 230 8308",addr:"315, Vauxhall Street, Colombo 02",w:"—"},
+  {id:49,n:"Parakrama Dissanayake",c:"Aitken Spence PLC",t:"Deputy Chairman / MD",ty:"md",s:"Conglomerate",p:"011 230 8308",hq:"011 230 8308",addr:"315, Vauxhall Street, Colombo 02",w:"—"},
+  {id:50,n:"Iqram Cuttilan",c:"Aitken Spence PLC",t:"MD/CEO - Maritime",ty:"ceo",s:"Conglomerate",p:"011 230 8100",hq:"011 230 8308",addr:"315, Vauxhall Street, Colombo 02",w:"—"},
+  {id:51,n:"Nalin Jayasundera",c:"Aitken Spence PLC",t:"MD - Aitken Spence Travels",ty:"md",s:"Conglomerate",p:"011 230 8016",hq:"011 230 8308",addr:"315, Vauxhall Street, Colombo 02",w:"—"},
+  {id:52,n:"Lasanth Warawita",c:"Aitken Spence PLC",t:"VP - Finance",ty:"cfo",s:"Conglomerate",p:"011 230 8028",hq:"011 230 8308",addr:"315, Vauxhall Street, Colombo 02",w:"—"},
+  {id:53,n:"Husein Esufally",c:"Hemas Holdings PLC",t:"Chairman",ty:"hnwi",s:"Conglomerate",p:"011 231 4400",hq:"011 231 4400",addr:"36, Bristol Street, Colombo 01",w:"~$250M (Esufally family)"},
+  {id:54,n:"Abbas Esufally",c:"Hemas Holdings PLC",t:"Managing Director",ty:"md",s:"Conglomerate",p:"011 231 4400",hq:"011 231 4400",addr:"36, Bristol Street, Colombo 01",w:"—"},
+  {id:55,n:"Sohli Captain",c:"Carson Cumberbatch PLC",t:"Director / CEO",ty:"hnwi",s:"Conglomerate",p:"011 242 1871",hq:"011 242 1871",addr:"61, Janadhipathi Mawatha, Colombo 01",w:"~$300M (Captain family, major JKH shareholders)"},
+  {id:56,n:"Rusi Captain",c:"Carson Cumberbatch PLC",t:"Major Shareholder",ty:"hnwi",s:"Conglomerate",p:"011 242 1871",hq:"011 242 1871",addr:"61, Janadhipathi Mawatha, Colombo 01",w:"~$300M (family)"},
+  {id:57,n:"Hanif Yusoof",c:"Expolanka Holdings PLC",t:"Executive Chairman",ty:"hnwi",s:"Conglomerate",p:"011 244 0908",hq:"011 244 0908",addr:"No 20, St Michaels Road, Colombo 03",w:"~$300M est. (SoftBank-backed)"},
+  {id:58,n:"Indika De Zoysa",c:"Expolanka Holdings PLC",t:"MD / Group CEO",ty:"ceo",s:"Conglomerate",p:"011 244 0908",hq:"011 244 0908",addr:"No 20, St Michaels Road, Colombo 03",w:"—"},
+  {id:59,n:"Janaka Abeysinghe",c:"Sri Lanka Telecom PLC",t:"Group CEO",ty:"ceo",s:"Telecom",p:"011 244 4444",hq:"011 244 4444",addr:"Lotus Road, Colombo 01",w:"State enterprise"},
+  {id:60,n:"Ajita de Costa",c:"Sri Lanka Telecom PLC",t:"Chairman",ty:"dir",s:"Telecom",p:"011 244 4444",hq:"011 244 4444",addr:"Lotus Road, Colombo 01",w:"—"},
+  {id:61,n:"Sumal Perera",c:"Access Engineering PLC",t:"Founder / Executive Vice Chairman",ty:"hnwi",s:"Engineering",p:"011 230 2302",hq:"011 230 2302",addr:"278, Access Towers, Union Place, Colombo 02",w:"~$150M (AEL stake)"},
+  {id:62,n:"Christopher Joshua",c:"Access Engineering PLC",t:"Founder / Director",ty:"dir",s:"Engineering",p:"011 230 2302",hq:"011 230 2302",addr:"278, Access Towers, Union Place, Colombo 02",w:"—"},
+  {id:63,n:"Ranjan Gomez",c:"Access Engineering PLC",t:"Founder / Director",ty:"dir",s:"Engineering",p:"011 230 2302",hq:"011 230 2302",addr:"278, Access Towers, Union Place, Colombo 02",w:"—"},
+  {id:64,n:"Mano Rajakariar",c:"Access Engineering PLC",t:"Director - Finance",ty:"dir",s:"Engineering",p:"011 230 2302",hq:"011 230 2302",addr:"278, Access Towers, Union Place, Colombo 02",w:"—"},
+  {id:65,n:"Phiroze Pestonjee",c:"AB Securitas (Pvt) Ltd",t:"Managing Director",ty:"md",s:"Security",p:"011 771 7777",hq:"011 771 7777",addr:"141, Kirula Road, Colombo 05",w:"Abans Group"},
+  {id:66,n:"Pradeep Kannangara",c:"AB Securitas (Pvt) Ltd",t:"Director & CEO",ty:"ceo",s:"Security",p:"011 771 7777",hq:"011 771 7777",addr:"141, Kirula Road, Colombo 05",w:"—"},
+  {id:67,n:"Imtiaz Iqbal",c:"AB Securitas (Pvt) Ltd",t:"Chief Operating Officer",ty:"other",s:"Security",p:"011 771 7777",hq:"011 771 7777",addr:"141, Kirula Road, Colombo 05",w:"—"},
+  {id:68,n:"Tyeab Akbarally",c:"Akbar Brothers (Pvt) Ltd",t:"Chairman / MD",ty:"hnwi",s:"Tea / Exports",p:"011 269 7151",hq:"011 269 7151",addr:"334, T.B. Jayah Mawatha, Colombo 10",w:"~$200M (Akbarally family)"},
+  {id:69,n:"Asgi Akbarally",c:"Akbar Brothers (Pvt) Ltd",t:"Managing Director",ty:"md",s:"Tea / Exports",p:"011 269 7151",hq:"011 269 7151",addr:"334, T.B. Jayah Mawatha, Colombo 10",w:"—"},
+  {id:70,n:"Hussain Akbarally",c:"Akbar Brothers (Pvt) Ltd",t:"Executive Director",ty:"dir",s:"Tea / Exports",p:"011 269 7151",hq:"011 269 7151",addr:"334, T.B. Jayah Mawatha, Colombo 10",w:"—"},
+  {id:71,n:"Gamini Wimalasuriya",c:"Akbar Brothers (Pvt) Ltd",t:"CFO",ty:"cfo",s:"Tea / Exports",p:"011 269 7151",hq:"011 269 7151",addr:"334, T.B. Jayah Mawatha, Colombo 10",w:"—"},
+  {id:72,n:"Rolf Blaser",c:"A. Baur & Co. (Pvt) Ltd",t:"CEO & MD",ty:"ceo",s:"Conglomerate",p:"011 473 2616",hq:"011 473 2616",addr:"05, Upper Chatham Street, Colombo 01",w:"—"},
+  {id:73,n:"Nishantha Weerasinghe",c:"A. Baur & Co. (Pvt) Ltd",t:"Deputy MD",ty:"md",s:"Conglomerate",p:"011 473 2616",hq:"011 473 2616",addr:"05, Upper Chatham Street, Colombo 01",w:"—"},
+  {id:74,n:"Anoja Basnayake",c:"A. Baur & Co. (Pvt) Ltd",t:"Director - IT",ty:"dir",s:"Conglomerate",p:"011 473 2616",hq:"011 473 2616",addr:"05, Upper Chatham Street, Colombo 01",w:"—"},
+  {id:75,n:"Ayanthi Perera",c:"A. Baur & Co. (Pvt) Ltd",t:"GM - Finance",ty:"cfo",s:"Conglomerate",p:"011 473 2616",hq:"011 473 2616",addr:"05, Upper Chatham Street, Colombo 01",w:"—"},
+  {id:76,n:"Chamindra Goonetilleke",c:"DIMO (Diesel & Motor Eng. PLC)",t:"MD & CEO",ty:"ceo",s:"Conglomerate",p:"011 244 5819",hq:"011 244 5819",addr:"65, Jetawana Road, Colombo 14",w:"—"},
+  {id:77,n:"Nedra Weerasinghe",c:"Ceylon Tobacco Company PLC",t:"Managing Director",ty:"md",s:"Retail / FMCG",p:"011 247 5000",hq:"011 247 5000",addr:"178, Anagarika Dharmapala Mw, Colombo 03",w:"BAT subsidiary - Rs 100B+ revenue"},
+  {id:78,n:"R Seevaratnam",c:"Ceylon Tobacco Company PLC",t:"Chairman",ty:"dir",s:"Retail / FMCG",p:"011 247 5000",hq:"011 247 5000",addr:"178, Anagarika Dharmapala Mw, Colombo 03",w:"—"},
+  {id:80,n:"Hiran Cooray",c:"Jetwing Hotels",t:"Chairman",ty:"hnwi",s:"Conglomerate",p:"011 238 1201",hq:"011 238 1201",addr:"Jetwing House, 46/26, Navam Mawatha, Col 02",w:"~$150M (Jetwing family)"},
+  {id:81,n:"Shiromal Cooray",c:"Jetwing Hotels",t:"MD / Chairperson",ty:"hnwi",s:"Conglomerate",p:"011 238 1201",hq:"011 238 1201",addr:"Jetwing House, 46/26, Navam Mawatha, Col 02",w:"—"},
+  {id:82,n:"Rohantha Athukorala",c:"Mobitel (Pvt) Ltd",t:"CEO",ty:"ceo",s:"Telecom",p:"011 247 3000",hq:"011 247 3000",addr:"Lotus Road, Colombo 01",w:"SLT subsidiary"},
+  {id:84,n:"Shalin Balasuriya",c:"Lanka IOC PLC",t:"CEO",ty:"ceo",s:"Conglomerate",p:"011 244 1816",hq:"011 244 1816",addr:"109/2, Bauddhaloka Mawatha, Colombo 04",w:"Indian Oil subsidiary SL"},
+  {id:85,n:"Chandula Perera",c:"Alcobronz (Pvt) Ltd",t:"CEO / Director",ty:"ceo",s:"Engineering",p:"011 737 5000",hq:"011 737 5000",addr:"375, George R De Silva Mw, Colombo 13",w:"—"},
+  {id:86,n:"Jayantha Dharmadasa",c:"Alcobronz (Pvt) Ltd",t:"Chairman (Nawaloka Holdings)",ty:"hnwi",s:"Engineering",p:"011 244 4444",hq:"011 737 5000",addr:"375, George R De Silva Mw, Colombo 13",w:"~$100M (Nawaloka group)"},
+  // HNWI Standalone
+  {id:87,n:"Harry Jayawardena",c:"Stassen Group / Distilleries",t:"Chairman - Stassen & DCSL",ty:"hnwi",s:"HNWI",p:"011 271 4750",hq:"011 271 4750",addr:"110, Norris Canal Road, Colombo 10",w:"~$500M+ (Stassen, DCSL empire)"},
+  {id:88,n:"Dhammika Perera",c:"Melstacorp / Hayleys",t:"Serial Entrepreneur / Investor",ty:"hnwi",s:"HNWI",p:"011 231 5800",hq:"011 231 5800",addr:"110, Norris Canal Road, Colombo 10",w:"~$700M - #2 richest in Sri Lanka"},
+  {id:89,n:"Victor Hettigoda",c:"Siddhalepa Group",t:"Founder / Chairman",ty:"hnwi",s:"HNWI",p:"011 281 6700",hq:"011 281 6700",addr:"161, Kirulapone Avenue, Colombo 05",w:"~$150M (ayurveda empire)"},
+  {id:90,n:"Dilith Jayaweera",c:"Triad Group",t:"Founder / Chairman",ty:"hnwi",s:"HNWI",p:"011 269 2244",hq:"011 269 2244",addr:"Triad, Colombo 03",w:"~$80M est. (media, marketing)"},
+  {id:91,n:"Ranjith Fernando",c:"Ceylinco Group",t:"Chairman / CEO",ty:"hnwi",s:"HNWI",p:"011 242 6426",hq:"011 242 6426",addr:"69, Janadhipathi Mawatha, Colombo 01",w:"~$200M (Ceylinco group)"},
+  {id:93,n:"Anushka Wijesinha",c:"Ceylon Chamber of Commerce",t:"Chief Economist",ty:"other",s:"Conglomerate",p:"011 244 8090",hq:"011 244 8090",addr:"50, Nawam Mawatha, Colombo 02",w:"—"},
+  {id:94,n:"Romesh David",c:"Nations Trust Bank",t:"Former CEO / Board Investor",ty:"hnwi",s:"HNWI",p:"011 244 3333",hq:"011 244 3333",addr:"242, Union Place, Colombo 02",w:"—"},
+  {id:97,n:"Ruchi Gunewardene",c:"Fonterra Brands Lanka",t:"MD",ty:"md",s:"Retail / FMCG",p:"011 487 9900",hq:"011 487 9900",addr:"Fonterra, Colombo 03",w:"Fonterra JV"},
+  {id:98,n:"Daminda Gamlath",c:"John Keells Holdings PLC",t:"President - Consumer Foods",ty:"other",s:"Conglomerate",p:"011 230 6172",hq:"011 230 6000",addr:"117, Sir Chittampalam A Gardiner Mw, Col 02",w:"—"},
+  {id:99,n:"Pavithra Samarasinghe",c:"A. Baur & Co. (Pvt) Ltd",t:"Senior GM - HR & Admin",ty:"other",s:"Conglomerate",p:"011 473 2616",hq:"011 473 2616",addr:"05, Upper Chatham Street, Colombo 01",w:"—"},
+  {id:100,n:"Sunjeevani Kotakadeniya",c:"LOLC Holdings PLC",t:"Director / Former Group CFO",ty:"cfo",s:"Finance",p:"011 557 5900",hq:"011 557 5900",addr:"100/1, Sri Jayawardenapura Mw, Rajagiriya",w:"—"},
+  {id:101,n:"Anura Warnakulasooriya",c:"Midaya Ceramic Co (Pvt) Ltd",t:"Managing Director",ty:"hnwi",s:"Manufacturing",p:"077 732 0061",hq:"—",addr:"—",w:"Owner/MD — Midaya Ceramic · direct mobile",e:"anuraw@midaya.com"},
+  {id:102,n:"Kavinda S Rajapaksha",c:"Samson Rubber Industries (DSI)",t:"Director",ty:"hnwi",s:"Manufacturing",p:"011 292 6065",hq:"011 292 6065",addr:"—",w:"DSI Samson group (Rajapaksha family)",e:"kavinda@dsityre.lk"},
+  {id:103,n:"Lakmal Fernando",c:"Regen Renewables (Pvt) Ltd",t:"Founder / Director",ty:"hnwi",s:"Energy",p:"077 731 3072",hq:"077 627 4848",addr:"—",w:"Renewable energy entrepreneur · 2 mobiles",e:"lakmalfernando@gmail.com"},
+  {id:104,n:"Chamika Godamanna",c:"Ninehearts Imaging",t:"Managing Director",ty:"hnwi",s:"Manufacturing",p:"011 243 2328",hq:"—",addr:"—",w:"Owner/MD — Ninehearts",e:"chamikag@ninehearts.com"},
+  {id:105,n:"Eassuwaren Subramaniam",c:"Eswaran Brothers Exports",t:"Deputy Chairman",ty:"hnwi",s:"Tea / Exports",p:"011 479 6793",hq:"011 479 6793",addr:"—",w:"Eswaran Brothers (tea, family)",e:"boardsec@eswaran.com"},
+  {id:106,n:"Deepal Nelson",c:"GSH City Hotel",t:"Managing Director",ty:"hnwi",s:"Hospitality",p:"071 734 7878",hq:"011 420 1050",addr:"—",w:"Hotel owner/MD · direct mobile",e:"deepalnelson@gmail.com"},
+  {id:107,n:"Devika Weerasinghe",c:"John Keells Holdings (Transportation)",t:"CFO - Transportation",ty:"cfo",s:"Conglomerate",p:"011 230 6000",hq:"011 230 6000",addr:"117, Sir Chittampalam A Gardiner Mw, Col 02",w:"—",e:"first.last@keells.com"},
+  {id:108,n:"Suresh Rajendra",c:"John Keells Holdings (Property)",t:"President - Property Group",ty:"other",s:"Conglomerate",p:"011 230 6000",hq:"011 230 6000",addr:"117, Sir Chittampalam A Gardiner Mw, Col 02",w:"—",e:"first.last@keells.com"},
+  {id:109,n:"Nayana Mawilmada",c:"JKH Properties (Cinnamon Life)",t:"Sector Head",ty:"other",s:"Real Estate",p:"011 230 6000",hq:"011 230 6000",addr:"Cinnamon Life, Colombo 02",w:"—",e:"first.last@keells.com"},
+  {id:110,n:"Charitha Subasinghe",c:"Keells Supermarkets (JKH)",t:"President - Retail Sector",ty:"other",s:"Retail / FMCG",p:"011 230 6000",hq:"011 230 6000",addr:"117, Sir Chittampalam A Gardiner Mw, Col 02",w:"—",e:"first.last@keells.com"},
+  {id:111,n:"Arjuna Herath",c:"Dialog Axiata PLC",t:"Independent Non-Executive Director",ty:"dir",s:"Telecom",p:"011 767 8700",hq:"011 767 8700",addr:"475, Union Place, Colombo 02",w:"—",e:"first.last@dialog.lk"},
+  {id:112,n:"Imtiaz Abdul Wahid",c:"Cargills Group Operations",t:"Managing Director",ty:"md",s:"Retail / FMCG",p:"011 236 7500",hq:"011 236 7500",addr:"40, York Street, Colombo 01",w:"—",e:"first.last@cargillsceylon.com"},
+  {id:113,n:"Shirendra Lawrence",c:"MAS Holdings (Pvt) Ltd",t:"Chief Operating Officer",ty:"other",s:"Apparel",p:"011 249 5000",hq:"011 249 5000",addr:"MAS Holdings, Colombo 03",w:"—",e:"firstl@masholdings.com"},
+  {id:114,n:"Sarinda Unamboowe",c:"Linea Aqua (MAS Holdings)",t:"CEO / Managing Director",ty:"ceo",s:"Apparel",p:"011 441 1100",hq:"011 441 1100",addr:"MAS Holdings, Colombo 03",w:"—",e:"firstu@masholdings.com"},
+  {id:115,n:"Hasitha Premaratne",c:"Brandix Apparel Limited",t:"Chief Financial Officer",ty:"cfo",s:"Apparel",p:"011 481 8000",hq:"011 481 8000",addr:"150/1, Kynsey Road, Colombo 08",w:"—",e:"firstp@brandix.com"},
+  {id:116,n:"Murtaza Esufally",c:"Hemas Pharmaceuticals",t:"Managing Director",ty:"md",s:"Conglomerate",p:"011 231 4400",hq:"011 231 4400",addr:"36, Bristol Street, Colombo 01",w:"—",e:"first.last@hemas.com"},
+  {id:117,n:"Shano Sabar",c:"Hemas Logistics & Maritime",t:"Executive Director",ty:"dir",s:"Logistics",p:"011 231 4400",hq:"011 231 4400",addr:"36, Bristol Street, Colombo 01",w:"—",e:"first.last@hemas.com"},
+  {id:118,n:"Ismail Abdeen",c:"Carson Cumberbatch PLC",t:"Board Director",ty:"dir",s:"Conglomerate",p:"011 242 1871",hq:"011 242 1871",addr:"61, Janadhipathi Mawatha, Colombo 01",w:"—",e:"first.last@carcumb.com"},
+  {id:119,n:"Mahen Weerasekera",c:"Sanken Group",t:"Group Chairman",ty:"hnwi",s:"Construction",p:"011 282 4666",hq:"011 282 4666",addr:"Sanken, Colombo 05",w:"Sanken group chairman",e:"first.last@sanken.lk"},
+  {id:120,n:"Ranjith Gunatilleke",c:"Sanken Construction",t:"Managing Director / Group CEO",ty:"md",s:"Construction",p:"011 282 4666",hq:"011 282 4666",addr:"Sanken, Colombo 05",w:"—",e:"first.last@sanken.lk"},
+  {id:121,n:"Rohana Wannigama",c:"Sanken Overseas (Pvt) Ltd",t:"Executive Director / Deputy CEO",ty:"dir",s:"Construction",p:"011 282 4666",hq:"011 282 4666",addr:"Sanken, Colombo 05",w:"—",e:"first.last@sanken.lk"},
+  {id:122,n:"Mevan Gunatilleke",c:"Sanken Construction",t:"Deputy Group CEO",ty:"other",s:"Construction",p:"011 282 4666",hq:"011 282 4666",addr:"Sanken, Colombo 05",w:"—",e:"first.last@sanken.lk"},
+  {id:123,n:"Susil Rodrigo",c:"Sanken Construction",t:"Chief Operating Officer",ty:"other",s:"Construction",p:"011 282 4666",hq:"011 282 4666",addr:"Sanken, Colombo 05",w:"—",e:"first.last@sanken.lk"},
+  {id:124,n:"Nalaka Welgama",c:"Capitol TwinPeaks (Sanken)",t:"Managing Director",ty:"md",s:"Real Estate",p:"011 372 3000",hq:"011 372 3000",addr:"Capitol TwinPeaks, Colombo 02",w:"—",e:"first.last@sanken.lk"},
+  {id:125,n:"Premalal Brahmanage",c:"Prime Group",t:"Group Chairman / Founder",ty:"hnwi",s:"Real Estate",p:"011 269 3355",hq:"011 269 3355",addr:"Prime Group, Colombo 04",w:"Founder — Prime Group (real estate)",e:"first@primegroup.lk"},
+  {id:126,n:"Sandamini Perera",c:"Prime Lands / Prime Residencies",t:"Co-Founder / Co-Chairperson",ty:"hnwi",s:"Real Estate",p:"011 269 3355",hq:"011 269 3355",addr:"Prime Group, Colombo 04",w:"Co-founder — Prime Lands",e:"first@primegroup.lk"},
+  {id:127,n:"Ranjith Page",c:"CT Land Development PLC",t:"Deputy Chairman / MD",ty:"md",s:"Real Estate",p:"011 243 1807",hq:"011 243 1807",addr:"CT Holdings, Colombo 03",w:"—",e:"first.last@ctholdings.lk"},
+  {id:128,n:"Louis Page",c:"CT Land Development PLC",t:"Chairman",ty:"hnwi",s:"Real Estate",p:"011 243 1807",hq:"011 243 1807",addr:"CT Holdings, Colombo 03",w:"CT Holdings (Page family)",e:"first.last@ctholdings.lk"},
+  {id:129,n:"Hardev Marwah",c:"One Galle Face (Shangri-La)",t:"CEO",ty:"ceo",s:"Hospitality",p:"011 788 8888",hq:"011 788 8888",addr:"1A, Centre Road, Galle Face, Colombo 02",w:"—",e:"first.last@shangri-la.com"},
+  {id:130,n:"Sudarshan Sharaf",c:"Sapphire Residences (ITC)",t:"Director",ty:"dir",s:"Real Estate",p:"011 203 1234",hq:"011 203 1234",addr:"ITC One, Colombo 01",w:"—",e:"first.last@itchotels.in"},
+  {id:131,n:"Pradeep Moraes",c:"Indocean Developers (Altair)",t:"Director",ty:"dir",s:"Real Estate",p:"011 214 9888",hq:"011 214 9888",addr:"Altair, Colombo 02",w:"—",e:"first.last@altair.lk"},
+  {id:132,n:"Kalyananda De Silva",c:"ICC (International Construction)",t:"Managing Director",ty:"md",s:"Construction",p:"011 440 0600",hq:"011 440 0600",addr:"ICC, Colombo",w:"—",e:"first.last@icc.lk"},
+  {id:133,n:"Nihal De Saram",c:"ICC Development",t:"Director",ty:"dir",s:"Construction",p:"011 440 0600",hq:"011 440 0600",addr:"ICC, Colombo",w:"—",e:"first.last@icc.lk"},
+  {id:134,n:"Ravi De Silva",c:"Tokyo Cement Group (Lanka)",t:"Executive Director",ty:"dir",s:"Manufacturing",p:"011 255 1000",hq:"011 255 1000",addr:"Tokyo Cement, Colombo 03",w:"—",e:"first.last@tokyocement.lk"},
+  {id:135,n:"S.R. Gnanam",c:"Tokyo Cement Company",t:"Managing Director",ty:"hnwi",s:"Manufacturing",p:"011 255 1000",hq:"011 255 1000",addr:"Tokyo Cement, Colombo 03",w:"Gnanam family (St. Anthony's / Tokyo Cement)",e:"first.last@tokyocement.lk"},
+  {id:136,n:"Christopher Fernando",c:"Tokyo Cement Group",t:"Executive Director",ty:"dir",s:"Manufacturing",p:"011 255 1000",hq:"011 255 1000",addr:"Tokyo Cement, Colombo 03",w:"—",e:"first.last@tokyocement.lk"},
+  {id:137,n:"Nandana Ekanayake",c:"Insee Cement Sri Lanka",t:"Chairman",ty:"dir",s:"Manufacturing",p:"011 780 0800",hq:"011 780 0800",addr:"Insee Cement, Colombo",w:"—",e:"first.last@inseecement.com"},
+  {id:138,n:"Mushtaq Ahamed",c:"Expolanka Holdings PLC",t:"Chairman / Group CEO",ty:"ceo",s:"Conglomerate",p:"011 465 9500",hq:"011 465 9500",addr:"No 20, St Michaels Road, Colombo 03",w:"SoftBank-backed logistics",e:"firsta@expolanka.com"},
+  {id:139,n:"Rohan De Silva",c:"McLarens Shipping Limited",t:"Chairman",ty:"hnwi",s:"Logistics",p:"011 472 8800",hq:"011 472 8800",addr:"McLarens, Colombo 02",w:"McLarens group (De Silva family)",e:"firstlast@mclarens.lk"},
+  {id:140,n:"Shehara De Silva",c:"McLarens Holdings",t:"Group Joint Managing Director",ty:"md",s:"Logistics",p:"011 472 8800",hq:"011 472 8800",addr:"McLarens, Colombo 02",w:"—",e:"first@mclarens.lk"},
+  {id:141,n:"S.R.S. Perera",c:"McLarens Holdings Ltd",t:"Managing Director",ty:"md",s:"Logistics",p:"011 472 8800",hq:"011 472 8800",addr:"McLarens, Colombo 02",w:"—",e:"first.last@mclarens.lk"},
+  {id:142,n:"Dinesh Jayawardena",c:"McLarens Group (Logistics)",t:"Joint Managing Director",ty:"md",s:"Logistics",p:"011 472 8800",hq:"011 472 8800",addr:"McLarens, Colombo 02",w:"—",e:"first.last@mclarens.lk"},
+  {id:143,n:"Chitral Amaratunga",c:"Dart Global Logistics",t:"CEO",ty:"ceo",s:"Logistics",p:"011 460 1600",hq:"011 460 1600",addr:"Dart Global, Colombo",w:"—",e:"first.last@dartglobal.com"},
+  {id:144,n:"S.P. Mutthiah",c:"Dart Global Freight",t:"Managing Director",ty:"md",s:"Logistics",p:"011 460 1600",hq:"011 460 1600",addr:"Dart Global, Colombo",w:"—",e:"first.last@dartglobal.com"},
+  {id:145,n:"Gihan Vidanage",c:"Hellmann Worldwide Logistics",t:"Managing Director",ty:"md",s:"Logistics",p:"011 422 0200",hq:"011 422 0200",addr:"Hellmann, Colombo",w:"—",e:"first.last@hellmann.com"},
+  {id:146,n:"Tissa Wickramasinghe",c:"Colombo Intl Container Terminals",t:"Chief Operating Officer",ty:"other",s:"Logistics",p:"011 263 9600",hq:"011 263 9600",addr:"CICT, Colombo Port",w:"—",e:"first.last@cict.lk"},
+  {id:147,n:"Jack Huang",c:"CICT (Colombo Port)",t:"CEO",ty:"ceo",s:"Logistics",p:"011 263 9600",hq:"011 263 9600",addr:"CICT, Colombo Port",w:"—",e:"first.last@cict.lk"},
+  {id:148,n:"Prabhath Ambegoda",c:"Sri Lanka Telecom",t:"Chief Corporate Officer",ty:"other",s:"Telecom",p:"011 242 1101",hq:"011 242 1101",addr:"Lotus Road, Colombo 01",w:"—",e:"first.last@slt.lk"},
+  {id:149,n:"Harsha Purasinghe",c:"Microimage (Pvt) Ltd",t:"Founder / CEO",ty:"hnwi",s:"IT / Tech",p:"011 471 0111",hq:"011 471 0111",addr:"Microimage, Colombo",w:"Founder — Microimage (HR tech)",e:"first@microimage.com"},
+  {id:150,n:"Shehan Selvanayagam",c:"Loops Digital",t:"Managing Director",ty:"md",s:"IT / Tech",p:"011 592 1144",hq:"011 592 1144",addr:"Loops, Colombo",w:"—",e:"first@loops.lk"},
+  {id:151,n:"Tony Weeresinghe",c:"Ustocktrade / MillenniumIT",t:"Founder / Chairman",ty:"hnwi",s:"IT / Tech",p:"011 246 3300",hq:"011 246 3300",addr:"Colombo",w:"Founder — MillenniumIT (sold to LSE)",e:"first@ustocktrade.com"},
+  {id:152,n:"Fazeel Azeez",c:"Wavenet International",t:"CEO",ty:"ceo",s:"IT / Tech",p:"011 544 5100",hq:"011 544 5100",addr:"Wavenet, Colombo",w:"—",e:"first.last@wavenetcorp.com"},
+  {id:153,n:"Sanjeev Palihawadana",c:"Sanje (Pvt) Ltd",t:"Founder / MD",ty:"hnwi",s:"IT / Tech",p:"011 552 2444",hq:"011 552 2444",addr:"Sanje, Colombo",w:"Founder — Sanje",e:"first@sanje.com"},
+  {id:154,n:"Dinesh Saparamadu",c:"hSenid Software International",t:"Founder / Chairman",ty:"hnwi",s:"IT / Tech",p:"011 462 1111",hq:"011 462 1111",addr:"hSenid, Colombo",w:"Founder — hSenid",e:"first@hsenid.com"},
+  {id:155,n:"Sampath Jayasundara",c:"hSenid Business Solutions PLC",t:"CEO",ty:"ceo",s:"IT / Tech",p:"011 462 1111",hq:"011 462 1111",addr:"hSenid, Colombo",w:"—",e:"first@hsenid.com"},
+  {id:156,n:"Chinthaka Wijewickrama",c:"Sala Enterprises",t:"Managing Director",ty:"hnwi",s:"Retail / FMCG",p:"011 250 1040",hq:"011 250 1040",addr:"Sala, Colombo",w:"Owner/MD — Sala Enterprises",e:"first@salaent.com"},
+  {id:157,n:"Manohara Atukorala",c:"Toyota Lanka (Pvt) Ltd",t:"Managing Director / CEO",ty:"ceo",s:"Automotive",p:"011 293 9000",hq:"011 293 9000",addr:"Toyota Lanka, Colombo",w:"—",e:"first.initial@toyota.lk"},
+  {id:158,n:"Aravinda De Silva",c:"Ideal Motors (Mahindra)",t:"Deputy Chairman",ty:"dir",s:"Automotive",p:"011 775 5555",hq:"011 775 5555",addr:"Ideal, Colombo",w:"—",e:"first.last@idealmotors.lk"},
+  {id:159,n:"Nalin Welgama",c:"Ideal Group",t:"Founder / Chairman",ty:"hnwi",s:"Automotive",p:"011 775 5555",hq:"011 775 5555",addr:"Ideal, Colombo",w:"Founder — Ideal Group",e:"first.last@idealmotors.lk"},
+  {id:160,n:"Ravi De Silva",c:"Associated Motorways (AMW)",t:"Director / Operations",ty:"dir",s:"Automotive",p:"011 230 9300",hq:"011 230 9300",addr:"AMW, Colombo",w:"—",e:"first.last@amwcl.com"},
+  {id:161,n:"Peter Mackenzie",c:"AMW Nissan/Suzuki Group",t:"Managing Director",ty:"md",s:"Automotive",p:"011 230 9300",hq:"011 230 9300",addr:"AMW, Colombo",w:"—",e:"first.last@amwcl.com"},
+  {id:162,n:"Gihan Pilapitiya",c:"United Motors Lanka PLC",t:"Director",ty:"dir",s:"Automotive",p:"011 244 8112",hq:"011 244 8112",addr:"United Motors, Colombo",w:"—",e:"first.last@unitedmotors.lk"},
+  {id:163,n:"Ramesh Yaseen",c:"United Motors Group",t:"Director - Mitsubishi",ty:"dir",s:"Automotive",p:"011 244 8112",hq:"011 244 8112",addr:"United Motors, Colombo",w:"—",e:"first.last@unitedmotors.lk"},
+  {id:164,n:"Jagath Samson",c:"Prestige Automobile (BMW)",t:"CEO",ty:"ceo",s:"Automotive",p:"011 287 5666",hq:"011 287 5666",addr:"Prestige, Colombo",w:"—",e:"first.last@prestigeauto.lk"},
+  {id:165,n:"Heinz Reuter",c:"Prestige Automobile (BMW SL)",t:"Managing Director",ty:"md",s:"Automotive",p:"011 287 5666",hq:"011 287 5666",addr:"Prestige, Colombo",w:"—",e:"first.last@prestigeauto.lk"},
+  {id:166,n:"Asela De Silva",c:"Eurocars (Pvt) Ltd (Porsche)",t:"Director",ty:"dir",s:"Automotive",p:"011 244 8112",hq:"011 244 8112",addr:"Eurocars, Colombo",w:"—",e:"first.last@porsche.lk"},
+  {id:167,n:"Eshana De Silva",c:"Shermans Logistics / Motors",t:"Chairman",ty:"hnwi",s:"Automotive",p:"011 232 5353",hq:"011 232 5353",addr:"Shermans, Colombo",w:"Shermans group (De Silva family)",e:"first.last@shermans.lk"},
+  {id:168,n:"Felix Fernando",c:"Omega Line Ltd",t:"CEO / Managing Director",ty:"ceo",s:"Apparel",p:"011 482 5000",hq:"011 482 5000",addr:"Omega Line, Colombo",w:"—",e:"first.last@omegaline.lk"},
+  {id:169,n:"Hemantha Perera",c:"Omega Line Ltd",t:"Director / Operations",ty:"dir",s:"Apparel",p:"011 482 5000",hq:"011 482 5000",addr:"Omega Line, Colombo",w:"—",e:"first.last@omegaline.lk"},
+  {id:170,n:"Mubarak Shad",c:"Star Garments Group",t:"Director",ty:"dir",s:"Apparel",p:"011 483 7000",hq:"011 483 7000",addr:"Star Garments, Colombo",w:"—",e:"first.last@stargarments.com"},
+  {id:171,n:"A. Sukumaran",c:"Star Garments Sri Lanka",t:"Managing Director",ty:"md",s:"Apparel",p:"011 483 7000",hq:"011 483 7000",addr:"Star Garments, Colombo",w:"—",e:"first.last@stargarments.com"},
+  {id:172,n:"Jehan Perera",c:"Hirdaramani Group",t:"Director",ty:"dir",s:"Apparel",p:"011 479 7000",hq:"011 479 7000",addr:"Hirdaramani, Colombo",w:"—",e:"first.last@hirdaramani.com"},
+  {id:173,n:"Vinod Hirdaramani",c:"Hirdaramani Apparel Group",t:"Chairman / Director",ty:"hnwi",s:"Apparel",p:"011 479 7000",hq:"011 479 7000",addr:"Hirdaramani, Colombo",w:"Hirdaramani family (apparel)",e:"first.last@hirdaramani.com"},
+  {id:174,n:"Anil Hirdaramani",c:"Hirdaramani Group",t:"Director",ty:"hnwi",s:"Apparel",p:"011 479 7000",hq:"011 479 7000",addr:"Hirdaramani, Colombo",w:"Hirdaramani family",e:"first.last@hirdaramani.com"},
+  {id:175,n:"Nazmeen Maharoof",c:"Hameedia Group",t:"Director",ty:"dir",s:"Retail / FMCG",p:"011 479 9700",hq:"011 479 9700",addr:"Hameedia, Colombo",w:"—",e:"first.last@hameedia.lk"},
+  {id:176,n:"Fouzul Hameed",c:"Hameedia Group",t:"Managing Director",ty:"hnwi",s:"Retail / FMCG",p:"011 479 9700",hq:"011 479 9700",addr:"Hameedia, Colombo",w:"Owner — Hameedia (menswear retail)",e:"first.last@hameedia.lk"},
+  {id:177,n:"Aman Ashraff",c:"Ashraff Associates",t:"Managing Director",ty:"hnwi",s:"Real Estate",p:"011 434 2300",hq:"011 434 2300",addr:"Colombo",w:"Owner — Ashraff Associates",e:"first@ashraffassociates.com"},
+  {id:178,n:"Kumudika Fernando",c:"Maliban Biscuit Group",t:"Chairperson / Group MD",ty:"hnwi",s:"Food / FMCG",p:"011 235 5500",hq:"011 235 5500",addr:"Maliban, Colombo",w:"Maliban (Samaraweera family)",e:"initial.last@malibanbiscuits.com"},
+  {id:179,n:"A.G.R. Samaraweera",c:"Maliban Group",t:"Group Chairman",ty:"hnwi",s:"Food / FMCG",p:"011 235 5500",hq:"011 235 5500",addr:"Maliban, Colombo",w:"Maliban chairman (family)",e:"initial.last@malibanbiscuits.com"},
+  {id:180,n:"Sheamalee Wickramasingha",c:"CBL Group (Munchee)",t:"Group Managing Director",ty:"hnwi",s:"Food / FMCG",p:"011 500 0000",hq:"011 500 0000",addr:"CBL, Colombo",w:"CBL / Munchee (Wickramasingha family)",e:"first.initial@cbllk.com"},
+  {id:181,n:"Ramya Wickramasingha",c:"CBL Group",t:"Group Chairman",ty:"hnwi",s:"Food / FMCG",p:"011 500 0000",hq:"011 500 0000",addr:"CBL, Colombo",w:"CBL chairman (family)",e:"first.initial@cbllk.com"},
+  {id:182,n:"Bernhard Stefan",c:"Nestlé Lanka Limited",t:"Managing Director / CEO",ty:"ceo",s:"Food / FMCG",p:"011 242 9600",hq:"011 242 9600",addr:"Nestlé Lanka, Colombo 03",w:"—",e:"first.last@lk.nestle.com"},
+  {id:183,n:"Amal Cabraal",c:"Ceylon Beverage Holdings",t:"Chairman",ty:"dir",s:"Food / FMCG",p:"011 246 5900",hq:"011 246 5900",addr:"Lion / Ceylon Beverage, Colombo",w:"—",e:"first.last@lionbeer.com"},
+  {id:184,n:"Rajiv Meewakkala",c:"Ceylon Tobacco Company",t:"Chief Executive Officer",ty:"ceo",s:"Retail / FMCG",p:"011 249 6200",hq:"011 249 6200",addr:"178, Anagarika Dharmapala Mw, Colombo 03",w:"—",e:"first.last@bat.com"},
+  {id:185,n:"Sanjeev Gardiner",c:"Galle Face Hotel Group",t:"Group Chairman & CEO",ty:"hnwi",s:"Hospitality",p:"011 254 1010",hq:"011 254 1010",addr:"2, Galle Road, Colombo 03",w:"Gardiner family (Galle Face Hotel, Ceysands)",e:"first.g@gallefacehotel.com"},
+  {id:186,n:"Nimal Perera",c:"Pace Holdings / Investor",t:"Investor & Deal-maker",ty:"hnwi",s:"HNWI",p:"—",hq:"—",addr:"Colombo",w:"Prominent CSE investor",e:""},
+  {id:187,n:"Mano Sekaram",c:"99X",t:"Co-founder / CEO",ty:"hnwi",s:"IT / Tech",p:"—",hq:"—",addr:"Colombo",w:"Co-founder 99X · ex-SLASSCOM chair",e:""},
+  {id:188,n:"Sanjiva Weerawarana",c:"WSO2",t:"Founder / CEO",ty:"hnwi",s:"IT / Tech",p:"—",hq:"—",addr:"Colombo",w:"Founder WSO2 (open-source)",e:""},
+  {id:189,n:"Kris Canekeratne",c:"Virtusa",t:"Founder / ex-Chairman",ty:"hnwi",s:"IT / Tech",p:"—",hq:"—",addr:"Colombo",w:"Founder Virtusa",e:""},
+  {id:190,n:"Harsha Subasinghe",c:"CodeGen International",t:"Founder / President",ty:"hnwi",s:"IT / Tech",p:"—",hq:"—",addr:"Colombo",w:"Founder CodeGen · Vega EV",e:""},
+  {id:191,n:"Jeevan Gnanam",c:"Orel Corp / Hatch",t:"Director / Entrepreneur",ty:"hnwi",s:"IT / Tech",p:"—",hq:"—",addr:"Colombo",w:"Tech entrepreneur",e:""},
+  {id:192,n:"Madu Ratnayake",c:"Virtusa Sri Lanka",t:"EVP & General Manager",ty:"other",s:"IT / Tech",p:"—",hq:"—",addr:"Colombo",w:"—",e:""},
+  {id:193,n:"Aban Pestonjee",c:"Abans Group",t:"Founder / Chairperson",ty:"hnwi",s:"Retail / FMCG",p:"—",hq:"—",addr:"Colombo",w:"Founder Abans (electronics/retail)",e:""},
+  {id:194,n:"Behman Pestonjee",c:"Abans Group",t:"Deputy Chairman",ty:"dir",s:"Retail / FMCG",p:"—",hq:"—",addr:"Colombo",w:"Abans group",e:""},
+  {id:195,n:"Rusi Pestonjee",c:"Abans Group",t:"Director",ty:"dir",s:"Retail / FMCG",p:"—",hq:"—",addr:"Colombo",w:"Abans group",e:""},
+  {id:196,n:"David Pieris",c:"David Pieris Motor Co (DPMC)",t:"Founder / Chairman",ty:"hnwi",s:"Automotive",p:"—",hq:"—",addr:"Colombo",w:"Founder DPMC (Bajaj) · HNWI",e:""},
+  {id:197,n:"Lalith Kahatapitiya",c:"Micro Holdings (Micro Cars)",t:"Founder / Chairman",ty:"hnwi",s:"Automotive",p:"—",hq:"—",addr:"Colombo",w:"Founder Micro Cars",e:""},
+  {id:198,n:"W.K.H. Wegapitiya",c:"Laugfs Holdings",t:"Co-founder / Group Chairman",ty:"hnwi",s:"Energy",p:"—",hq:"—",addr:"Colombo",w:"Founder Laugfs (gas/energy)",e:""},
+  {id:199,n:"Thilak De Silva",c:"Laugfs Holdings",t:"Co-founder / Deputy Chairman",ty:"hnwi",s:"Energy",p:"—",hq:"—",addr:"Colombo",w:"Co-founder Laugfs",e:""},
+  {id:200,n:"Manjula Mathews",c:"WindForce PLC",t:"Managing Director",ty:"md",s:"Energy",p:"—",hq:"—",addr:"Colombo",w:"Renewable energy (WindForce)",e:""},
+  {id:201,n:"Suresh Shah",c:"Lion Brewery (Ceylon) PLC",t:"Director / ex-CEO",ty:"dir",s:"Food / FMCG",p:"—",hq:"—",addr:"Colombo",w:"Beverage industry leader",e:""},
+  {id:202,n:"Kasturi Chellaraja Wilson",c:"Hemas Holdings PLC",t:"Group CEO",ty:"ceo",s:"Conglomerate",p:"011 231 4400",hq:"011 231 4400",addr:"36, Bristol Street, Colombo 01",w:"—",e:""},
+  {id:203,n:"Imal Fonseka",c:"Fairway Holdings",t:"Director / CEO",ty:"ceo",s:"Real Estate",p:"—",hq:"—",addr:"Colombo",w:"Fairway (real estate)",e:""},
+  {id:204,n:"Mahendra Jayasekera",c:"Lanka Walltiles / Lanka Tiles PLC",t:"Managing Director",ty:"md",s:"Manufacturing",p:"—",hq:"—",addr:"Colombo",w:"Tiles (Vallibel group)",e:""},
+  {id:205,n:"Suren Madanayake",c:"ACL Cables PLC",t:"Managing Director",ty:"md",s:"Manufacturing",p:"—",hq:"—",addr:"Colombo",w:"ACL Cables (Madanayake family)",e:""},
+  {id:206,n:"D.D. Gunasekera",c:"Crysbro Group",t:"Founder / Chairman",ty:"hnwi",s:"Food / FMCG",p:"—",hq:"—",addr:"Colombo",w:"Poultry group (Crysbro)",e:""},
+  {id:207,n:"Otara Gunewardene",c:"ODEL / Embark",t:"Founder",ty:"hnwi",s:"Retail / FMCG",p:"—",hq:"—",addr:"Colombo",w:"Founder ODEL (fashion retail)",e:""},
+  {id:208,n:"Dian Gomes",c:"Apparel industry veteran (ex-MAS/Slimline)",t:"Director / Advisor",ty:"other",s:"Apparel",p:"—",hq:"—",addr:"Colombo",w:"Veteran apparel leader",e:""},
+  {id:209,n:"Hans Wijayasuriya",c:"Telecom leader (ex-Dialog/Axiata)",t:"Group CEO (Digital)",ty:"hnwi",s:"Telecom",p:"—",hq:"—",addr:"Colombo",w:"Veteran telecom leader",e:""},
+  {id:210,n:"Nahil Wijesuriya",c:"East West Properties PLC",t:"Chairman",ty:"hnwi",s:"Real Estate",p:"—",hq:"—",addr:"Colombo",w:"Prominent HNWI (real estate/aviation)",e:""},
+  {id:211,n:"Kishu Gomes",c:"Business leader (ex-Chevron Lanka)",t:"CEO / Director",ty:"other",s:"Manufacturing",p:"—",hq:"—",addr:"Colombo",w:"Veteran CEO",e:""},
+  {id:212,n:"Sanjay Kulatunga",c:"Investor / Board Director",t:"Entrepreneur / Director",ty:"hnwi",s:"HNWI",p:"—",hq:"—",addr:"Colombo",w:"Investor / entrepreneur",e:""},
+  {id:213,n:"Channa Palansuriya",c:"Orange Electric",t:"Founder / Chairman",ty:"hnwi",s:"Manufacturing",p:"—",hq:"—",addr:"Colombo",w:"Founder Orange Electric",e:""},
+  {id:214,n:"New Suriyas Jewellers",c:"Sea Street, Colombo 11",t:"Proprietor / Owner",ty:"hnwi",s:"Jewellery & Gems",p:"011 244 1628",hq:"011 244 1628",addr:"57 Sea Street, Pettah, Colombo 11",w:"Sea Street jeweller",e:""},
+  {id:215,n:"Ravi Jewellers (Pvt) Ltd",c:"Sea Street, Colombo 11",t:"Proprietor / Owner",ty:"hnwi",s:"Jewellery & Gems",p:"011 243 6358",hq:"011 243 6358",addr:"115 Sea Street, Colombo 11",w:"Sea Street jeweller · est 1967",e:""},
+  {id:216,n:"Devi Jewellers (Pvt) Ltd",c:"Sea Street, Colombo 11",t:"Proprietor / Owner",ty:"hnwi",s:"Jewellery & Gems",p:"011 239 5001",hq:"011 239 5001",addr:"131 Sea Street, Colombo 11",w:"Sea Street jeweller",e:""},
+  {id:217,n:"Raja Jewellers (Pvt) Ltd",c:"Galle Road, Colombo 04",t:"Proprietor / Owner",ty:"hnwi",s:"Jewellery & Gems",p:"011 258 3223",hq:"011 258 3223",addr:"Raja Building, 173 Galle Road, Colombo 04",w:"Well-known jeweller",e:""},
+  {id:218,n:"Hemachandra Brothers",c:"York Street, Colombo 01",t:"Proprietor / Owner",ty:"hnwi",s:"Jewellery & Gems",p:"011 242 1921",hq:"011 242 1921",addr:"4 York Street, Fort, Colombo 01",w:"Established jeweller (Fort)",e:""},
+  {id:219,n:"Ellawala Jewellery (Pvt) Ltd",c:"Carlwil Place, Colombo 03",t:"Proprietor / Owner",ty:"hnwi",s:"Jewellery & Gems",p:"011 257 5756",hq:"011 257 5756",addr:"14 Carlwil Place, Colombo 03",w:"Jeweller / gem house",e:""},
+  {id:220,n:"Ellawala Exports (Pvt) Ltd",c:"Carlwil Place, Colombo 03",t:"Proprietor / Owner",ty:"hnwi",s:"Jewellery & Gems",p:"011 257 3971",hq:"011 257 3971",addr:"14 Carlwil Place, Colombo 03",w:"Gem exporter",e:""},
+  {id:221,n:"Premadasa Gems & Jewellery (Pvt) Ltd",c:"Ward Place, Colombo 07",t:"Proprietor / Owner",ty:"hnwi",s:"Jewellery & Gems",p:"011 200 5100",hq:"011 200 5100",addr:"75/7 Ward Place, Colombo 07",w:"Gems & jewellery",e:""},
+  {id:222,n:"A.K. Mohamad Abdul Cader & Co",c:"Ward Place, Colombo 07",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 268 5400",hq:"011 268 5400",addr:"46/1/1 Ward Place, Colombo 07",w:"Jeweller",e:""},
+  {id:223,n:"Buhary & Company",c:"Second Cross St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 232 8149",hq:"011 232 8149",addr:"154 Second Cross Street, Colombo 11",w:"Pettah jeweller",e:""},
+  {id:224,n:"Ishak and Company",c:"Chatham St, Colombo 01",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 232 7596",hq:"011 232 7596",addr:"45 Chatham Street, Fort, Colombo 01",w:"Jeweller (Fort)",e:""},
+  {id:225,n:"Onais (Pte) Ltd",c:"Galle Road, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 244 0464",hq:"011 244 0464",addr:"138 Galle Road, Colombo 03",w:"Jeweller",e:""},
+  {id:226,n:"Zam Jewelcrafts (Pvt) Ltd",c:"Galle Road, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 258 5964",hq:"011 258 5964",addr:"471 Galle Road, Colombo 03",w:"Jeweller",e:""},
+  {id:227,n:"Eden Jewels",c:"Wellawatte, Colombo 06",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 236 1363",hq:"011 236 1363",addr:"230 Galle Road, Wellawatte, Colombo 06",w:"Jeweller",e:""},
+  {id:228,n:"Wellawatta Nithyakalyani Jewellery",c:"Galle Road, Colombo 06",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 236 3392",hq:"011 236 3392",addr:"541 Galle Road, Colombo 06",w:"Gold jeweller",e:""},
+  {id:229,n:"Jewel Laurel",c:"Dharmapala Mw, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 720 0323",hq:"011 720 0323",addr:"64 Dharmapala Mawatha, Colombo 03",w:"Jeweller",e:""},
+  {id:230,n:"Hans Jewels Co. Ltd",c:"Police Park Ave, Colombo 05",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 259 7186",hq:"011 259 7186",addr:"30 Police Park Avenue, Colombo 05",w:"Jeweller",e:""},
+  {id:231,n:"Priyan Gems",c:"De Fonseka Place, Colombo 05",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 259 0229",hq:"011 259 0229",addr:"35 De Fonseka Place, Colombo 05",w:"Gem dealer",e:""},
+  {id:232,n:"Ridhi Silver Studio (Zays)",c:"Lauries Road, Colombo 04",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 259 8471",hq:"011 259 8471",addr:"74 Lauries Road, Colombo 04",w:"Silver jeweller",e:""},
+  {id:233,n:"Deepthi Jewellery",c:"Gem & Jewellery Exchange, WTC",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 239 0904",hq:"011 239 0904",addr:"Sri Lanka Gem & Jewellery Exchange, WTC, Colombo 01",w:"Jeweller (WTC)",e:""},
+  {id:234,n:"Trade Exchange",c:"Eighth Lane, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 258 9031",hq:"011 258 9031",addr:"16 Eighth Lane, Colombo 03",w:"Gem/jewellery trade",e:""},
+  {id:235,n:"Ceylon Natural Gems",c:"Battaramulla",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 790 5380",hq:"011 790 5380",addr:"750/A Pelawatta, Battaramulla",w:"Gem cutter/dealer",e:""},
+  {id:236,n:"Cey-kor I.e. & T",c:"W A Silva Mw, Colombo",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"077 790 0099",hq:"077 790 0099",addr:"79/9A W A Silva Mawatha, Colombo",w:"Gem & tea exporter · mobile 📞",e:""},
+  {id:237,n:"Pink Diamonds",c:"Seeduwa",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"077 866 9751",hq:"077 866 9751",addr:"Gallawatta, Dambaduraya, Seeduwa",w:"Diamonds · mobile 📞",e:""},
+  {id:238,n:"Twinkle Jewels",c:"Horton Terrace, Colombo 07",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"077 724 2520",hq:"077 724 2520",addr:"3 Horton Terrace, Colombo 07",w:"Jewellery · mobile 📞",e:""},
+  {id:239,n:"Nations Time (Pte) Ltd",c:"Liberty Plaza, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 230 1744",hq:"011 230 1744",addr:"1/65 Liberty Plaza, Colombo 03",w:"Watches & gifts",e:""},
+  {id:240,n:"Shim Gems (Pvt) Ltd",c:"Pita Kotte",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"011 282 7007",hq:"011 282 7007",addr:"20 Ananda Balika Mawatha, Pita Kotte",w:"Watches & jewellery",e:""},
+  {id:241,n:"Lanka Leather Products (Pvt) Ltd",c:"Sea Street, Colombo 11",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 243 3762",hq:"011 243 3762",addr:"196 Sea Street, Colombo 11",w:"Leather & textile · est 1990",e:""},
+  {id:242,n:"Pearl Tex (Pvt) Ltd",c:"Keyzer St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 244 6836",hq:"011 244 6836",addr:"145 Keyzer Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:243,n:"Eckotex Industries",c:"Second Cross St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 242 1003",hq:"011 242 1003",addr:"197 Second Cross Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:244,n:"Lithumethas",c:"Keyzer St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 243 2106",hq:"011 243 2106",addr:"19/A Keyzer Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:245,n:"Shakthi Traders & Exporters (Pvt) Ltd",c:"Manning Market, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 266 9925",hq:"011 266 9925",addr:"660/A Manning Market, Pettah, Colombo 11",w:"Pettah trader/exporter",e:""},
+  {id:246,n:"Tata Tex",c:"Bankhall St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 244 9672",hq:"011 244 9672",addr:"40 Bankhall Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:247,n:"Toyota Tex",c:"Bankshall St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 243 6439",hq:"011 243 6439",addr:"40/1/1 Bankshall Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:248,n:"Star Textile Processing Industries",c:"3rd Cross St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 232 8015",hq:"011 232 8015",addr:"114 3rd Cross Street, Colombo 11",w:"Pettah textile processing",e:""},
+  {id:249,n:"Anoma Textile",c:"Keyzer St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 247 2761",hq:"011 247 2761",addr:"196/9 Keyzer Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:250,n:"Asoka Textile",c:"Keyzer St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 238 4243",hq:"011 238 4243",addr:"Keyzer Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:251,n:"Design Textile Centre",c:"Keyzer St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 232 5738",hq:"011 232 5738",addr:"153 Keyzer Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:252,n:"Five Star Textiles Centre",c:"2nd Cross St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 244 1810",hq:"011 244 1810",addr:"95 2nd Cross Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:253,n:"H H Essa & Co",c:"3rd Cross St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 232 6478",hq:"011 232 6478",addr:"96 3rd Cross Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:254,n:"Kalam Traders",c:"New Moor St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 243 2156",hq:"011 243 2156",addr:"3 New Moor Street, Colombo 12",w:"Pettah textile",e:""},
+  {id:255,n:"Kalpanas",c:"Prince St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 232 5368",hq:"011 232 5368",addr:"119 Prince Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:256,n:"Fahd Traders",c:"Dam St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 721 9782",hq:"011 721 9782",addr:"104/9 Dam Street, Colombo 12",w:"Pettah textile",e:""},
+  {id:257,n:"Globus Enterprise",c:"Grandpass, Colombo 14",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 233 2949",hq:"011 233 2949",addr:"127 Grandpass Road, Colombo 14",w:"Textile",e:""},
+  {id:258,n:"G Seelanathakuruppu & Sons",c:"Liberty Plaza, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 257 3141",hq:"011 257 3141",addr:"30-31 Liberty Plaza, Colombo 03",w:"Textile",e:""},
+  {id:259,n:"House of Fashions",c:"R A De Mel Mw, Colombo 05",t:"Proprietor / Owner",ty:"hnwi",s:"Textile / Pettah",p:"011 250 4639",hq:"011 250 4639",addr:"28 R A De Mel Mawatha, Colombo 05",w:"Major fashion retailer",e:""},
+  {id:260,n:"Aszai Fashions",c:"Havelock Road, Colombo 05",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 258 9284",hq:"011 258 9284",addr:"104 Havelock Road, Colombo 05",w:"Fashion",e:""},
+  {id:261,n:"Cozy Linen",c:"Queens Road, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 555 5549",hq:"011 555 5549",addr:"33 Queens Road, Colombo 03",w:"Linen",e:""},
+  {id:262,n:"Kamsins",c:"W A De Silva Mw, Colombo 06",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 573 7899",hq:"011 573 7899",addr:"22 W A De Silva Mawatha, Colombo 06",w:"Textile",e:""},
+  {id:263,n:"Yasui Lanka (Pvt) Ltd",c:"Galle Face, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 232 6845",hq:"011 232 6845",addr:"52 Galle Face Court 2, Colombo 03",w:"Textile",e:""},
+  {id:264,n:"Aban Enterprise",c:"Aluthmawatha, Colombo 15",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 254 6831",hq:"011 254 6831",addr:"556 Aluthmawatha Road, Colombo 15",w:"Textile",e:""},
+  {id:265,n:"Aruna Traders",c:"Bankshall St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 243 6439",hq:"011 243 6439",addr:"40 Bankshall Street, Colombo 11",w:"Pettah textile",e:""},
+  {id:266,n:"A S Texco (Pvt) Ltd",c:"Sulaiman Terrace, Colombo 05",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"077 731 5276",hq:"077 731 5276",addr:"31/8 Sulaiman Terrace, Colombo 05",w:"Textile · mobile 📞",e:""},
+  {id:267,n:"Muthraj Business International",c:"47th Lane, Colombo 06",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"077 304 4440",hq:"077 304 4440",addr:"11/8B 47th Lane, Colombo 06",w:"Textile · mobile 📞",e:""},
+  {id:268,n:"Lakmali's",c:"Dambahena Road, Colombo",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"077 760 0650",hq:"077 760 0650",addr:"44/45 Dambahena Road, Colombo",w:"Apparel maker · mobile 📞",e:""},
+  {id:269,n:"Lak Enterprises",c:"Attidiya, Dehiwala",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"077 727 2021",hq:"077 727 2021",addr:"120A Main Road, Attidiya, Dehiwala",w:"Knitted fabrics · mobile 📞",e:""},
+  {id:270,n:"Ceylon Authentics",c:"Colombo",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"077 718 6056",hq:"077 718 6056",addr:"232 Adikarigoda, Colombo",w:"Handloom & handicrafts · mobile 📞",e:""},
+  {id:271,n:"Aira Uniforms",c:"Gunasinghapura, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 241 1058",hq:"011 241 1058",addr:"Dias Place, Gunasinghapura, Colombo 12",w:"Uniforms",e:""},
+  {id:272,n:"TexTech Sri Lanka",c:"D R Wijewardena Mw, Colombo",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 259 1750",hq:"011 259 1750",addr:"12 D R Wijewardena Mawatha, Colombo",w:"Textile B2B platform",e:""},
+  {id:273,n:"Twinery (Innovations by MAS)",c:"Foster Lane, Colombo 10",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 479 6444",hq:"011 479 6444",addr:"50 Foster Lane, Colombo 10",w:"Textile innovation (MAS)",e:""},
+  {id:274,n:"Task International",c:"Polhengoda, Colombo 05",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 454 2955",hq:"011 454 2955",addr:"132 Polhengoda Road, Colombo 05",w:"Knitted fabrics & garments",e:""},
+  {id:275,n:"Shore To Shore (Pvt) Ltd",c:"Park Street, Colombo 02",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 230 3782",hq:"011 230 3782",addr:"66 Park Street, Colombo 02",w:"Branding & packaging",e:""},
+  {id:276,n:"Siitraco Impex (Pvt) Ltd",c:"Galle Face, Colombo 03",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 233 6343",hq:"011 233 6343",addr:"27 Marcan Markar Arcade, Galle Face, Colombo 03",w:"Textile importer",e:""},
+  {id:277,n:"Thaha Trading House",c:"Manning Place, Colombo 06",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"011 258 1857",hq:"011 258 1857",addr:"98/1/1 Manning Place, Colombo 06",w:"Trading house",e:""},
+  {id:278,n:"Loomy Lane",c:"Avissawella",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"077 688 0545",hq:"077 688 0545",addr:"Gangani Gardens, Madola, Avissawella",w:"Home textiles · mobile 📞",e:""},
+  {id:279,n:"nCinga",c:"Park Street, Colombo 02",t:"Proprietor / Owner",ty:"other",s:"Textile / Pettah",p:"077 204 3916",hq:"077 204 3916",addr:"Level 19 Park Land, 33 Park Street, Colombo 02",w:"Apparel tech · mobile 📞",e:""},
+  {id:280,n:"Ahmedsons",c:"Messenger St, Colombo 12",t:"Proprietor / Owner",ty:"hnwi",s:"Hardware & Steel",p:"011 232 6730",hq:"011 232 6730",addr:"105 Messenger Street, Colombo 12",w:"Hardware · est 1977",e:""},
+  {id:281,n:"Asian Hardware (Pte) Ltd",c:"Messenger St, Colombo 12",t:"Proprietor / Owner",ty:"hnwi",s:"Hardware & Steel",p:"011 234 1481",hq:"011 234 1481",addr:"144 Messenger Street, Colombo 12",w:"Aluminium & hardware · est 1985",e:""},
+  {id:282,n:"Allied Trading International (Pvt) Ltd",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 247 1798",hq:"011 247 1798",addr:"301 Old Moor Street, Colombo 12",w:"Boiler & water materials",e:""},
+  {id:283,n:"Asian Group of Companies (Pvt) Ltd",c:"Barber St, Colombo 13",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 740 0200",hq:"011 740 0200",addr:"55 Mahavidyalaya Mw (Barber St), Colombo 13",w:"Hardware group",e:""},
+  {id:284,n:"Ideal Impex (Pvt) Ltd",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 242 2670",hq:"011 242 2670",addr:"321 Old Moor Street, Colombo 12",w:"Hardware, steel & tools",e:""},
+  {id:285,n:"Taian Lanka Steel Company (Pvt) Ltd",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 233 3096",hq:"011 233 3096",addr:"333 Old Moor Street, Colombo 12",w:"Steel tubes & pipes",e:""},
+  {id:286,n:"Karuna Steel",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 239 2223",hq:"011 239 2223",addr:"369A Old Moor Street, Colombo 12",w:"Steel (Pettah)",e:""},
+  {id:287,n:"Das Enterprises (Pvt) Ltd",c:"Prince St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 471 8122",hq:"011 471 8122",addr:"13 Prince Street, Colombo 11",w:"Furniture & construction materials",e:""},
+  {id:288,n:"Duro Pipe Industrial (Pvt) Ltd",c:"George R De Silva Mw, Colombo 13",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 244 0759",hq:"011 244 0759",addr:"307 George R De Silva Mawatha, Colombo 13",w:"Plastic pipes",e:""},
+  {id:289,n:"Kamal PVC Industries (Pvt) Ltd",c:"Ratmalana",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 262 4800",hq:"011 262 4800",addr:"56 Kandawala Mawatha, Ratmalana",w:"PVC pipes & fittings",e:""},
+  {id:290,n:"K & K International Lanka (Pvt) Ltd",c:"Ratmalana",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 263 7473",hq:"011 263 7473",addr:"9 5th Lane, Borupana Road, Ratmalana",w:"Welding solutions",e:""},
+  {id:291,n:"The Commercial Trading Company",c:"Abdul Jabbar Mw, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 238 1193",hq:"011 238 1193",addr:"302/E Abdul Jabbar Mawatha, Colombo 12",w:"Trading",e:""},
+  {id:292,n:"Wayamba Polymers (Pvt) Ltd",c:"Kotte",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 505 5149",hq:"011 505 5149",addr:"159/2F Talawatugoda Road, Kotte",w:"Moulded products",e:""},
+  {id:293,n:"Tegels Ceramica (Pvt) Ltd",c:"Galle Road, Dehiwala",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 272 2690",hq:"011 272 2690",addr:"88E Galle Road, Dehiwala",w:"Tiles & design",e:""},
+  {id:294,n:"Metropolitan Engineering (Pvt) Ltd",c:"Battaramulla",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 452 4800",hq:"011 452 4800",addr:"402/A Kaduwela Road, Thalangama, Battaramulla",w:"Engineering & solutions",e:""},
+  {id:295,n:"Mathura Engineers (Pvt) Ltd",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 233 1331",hq:"011 233 1331",addr:"340B Old Moor Street, Colombo 12",w:"Steel solutions",e:""},
+  {id:296,n:"Gateway Hardware (Pvt) Ltd",c:"Dutugemunu St, Colombo",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"077 784 5464",hq:"077 784 5464",addr:"149 Dutugemunu Street, Colombo",w:"Hardware & tools · mobile 📞",e:""},
+  {id:297,n:"SVP Trading Co (Pvt) Ltd",c:"Colombo 14",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 243 5126",hq:"011 243 5126",addr:"29 Sirimavo Bandaranayake Mw, Colombo 14",w:"Trading",e:""},
+  {id:298,n:"Living Styles",c:"Dharmarama Rd, Colombo 06",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 259 2977",hq:"011 259 2977",addr:"62A Dharmarama Road, Colombo 06",w:"Homeware & electronics",e:""},
+  {id:299,n:"Machine Impex (Pvt) Ltd",c:"Sri Sangaraja Mw, Colombo 10",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 238 9966",hq:"011 238 9966",addr:"545/1A Sri Sangaraja Mawatha, Colombo 10",w:"Machinery import",e:""},
+  {id:300,n:"Mazda Plastic Lanka (Pvt) Ltd",c:"Heiyantuduwa",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 246 5626",hq:"011 246 5626",addr:"11 Ganewela Road, Mabima, Heiyantuduwa",w:"PVC compounds",e:""},
+  {id:301,n:"Apollo Enterprises",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 243 7742",hq:"011 243 7742",addr:"348 Old Moor Street, Colombo 12",w:"Trading (Old Moor St)",e:""},
+  {id:302,n:"Faiz Brothers (Pvt) Ltd",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 243 1975",hq:"011 243 1975",addr:"357 Old Moor Street, Colombo 12",w:"Roofing materials · est 1975",e:""},
+  {id:303,n:"Gateway Metals",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 242 4179",hq:"011 242 4179",addr:"335 Old Moor Street, Colombo 12",w:"Metals (Pettah)",e:""},
+  {id:304,n:"The Malayan Trading Co Ltd",c:"Abdul Jabbar Mw, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 243 4213",hq:"011 243 4213",addr:"45 Abdul Jabbar Mawatha, Colombo 12",w:"Trading",e:""},
+  {id:305,n:"St Anthony's Industries Group (Pvt) Ltd",c:"Sri Sangaraja Mw, Colombo 10",t:"Proprietor / Owner",ty:"hnwi",s:"Hardware & Steel",p:"011 232 0624",hq:"011 232 0624",addr:"516 Sri Sangaraja Mawatha, Colombo 10",w:"Major plastics manufacturer (60 yrs)",e:""},
+  {id:306,n:"Asian Trading Company",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 243 7936",hq:"011 243 7936",addr:"324 Old Moor Street, Colombo 12",w:"Trading (Pettah)",e:""},
+  {id:307,n:"Electroref Engineers (Pvt) Ltd",c:"Borella, Colombo 08",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 267 7335",hq:"011 267 7335",addr:"74 Lesly Ranagala Mw, Borella, Colombo 08",w:"Refrigeration engineers",e:""},
+  {id:308,n:"Janatha Steels",c:"Quarry Road, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 242 1412",hq:"011 242 1412",addr:"20 Quarry Road, Colombo 12",w:"Steel",e:""},
+  {id:309,n:"Meridien Steels",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 232 5014",hq:"011 232 5014",addr:"459 Old Moor Street, Colombo 12",w:"Steel (Pettah)",e:""},
+  {id:310,n:"Sealcore Stainless Steel Industries (Pvt) Ltd",c:"Sri Samantissa Mw, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 232 5561",hq:"011 232 5561",addr:"175 Sri Samantissa Mawatha, Colombo 12",w:"Stainless steel",e:""},
+  {id:311,n:"Figaro (Pvt) Ltd",c:"Maradana, Colombo 10",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 269 1021",hq:"011 269 1021",addr:"674/8 Second Division, Maradana, Colombo 10",w:"STIHL tools dealer",e:""},
+  {id:312,n:"Marshal Trading Company",c:"Dam St, Pettah",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 234 3452",hq:"011 234 3452",addr:"104/1D Dam Street, Colombo 12",w:"Trading (Pettah)",e:""},
+  {id:313,n:"Onida Steels",c:"Quarry Road, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 245 9990",hq:"011 245 9990",addr:"41 Quarry Road, Colombo 12",w:"Steel",e:""},
+  {id:314,n:"A D Tools Company",c:"Sangaraja Mw, Colombo 10",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 244 9018",hq:"011 244 9018",addr:"331 Sangaraja Mawatha, Colombo 10",w:"Tools · est 2000",e:""},
+  {id:315,n:"Moon Hardware Centre",c:"Old Moor St, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 234 5873",hq:"011 234 5873",addr:"375A Old Moor Street, Colombo 12",w:"Hardware (Old Moor St)",e:""},
+  {id:316,n:"Nava Asian Trading Co",c:"Abdul Jabbar Mw, Colombo 12",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"011 244 7210",hq:"011 244 7210",addr:"35A Abdul Jabbar Mawatha, Colombo 12",w:"Trading (Pettah)",e:""},
+  {id:317,n:"LadiesWatches.lk",c:"Piliyandala",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"077 845 4035",hq:"077 845 4035",addr:"Mampe, Piliyandala",w:"Watches retail · mobile 📞",e:""},
+  {id:318,n:"Shopping.lk",c:"Galle Road, Colombo",t:"Proprietor / Owner",ty:"other",s:"Hardware & Steel",p:"077 442 2081",hq:"077 442 2081",addr:"237 Colombo-Galle Main Road, Colombo",w:"Online retailer · mobile 📞",e:""},
+  {id:319,n:"Jwellerydesigns.com",c:"Ethul Kotte",t:"Proprietor / Owner",ty:"other",s:"Jewellery & Gems",p:"071 142 3147",hq:"071 142 3147",addr:"Mahindarama Road, Ethul Kotte",w:"Custom jewellery · mobile 📞",e:""}
+];
+
+// ═══════════════════ STATE ═══════════════════
+var crm = {};
+try { crm = JSON.parse(localStorage.getItem('slcrm4') || '{}'); } catch(e) {}
+function save() { try { localStorage.setItem('slcrm4', JSON.stringify(crm)); } catch(e) {} }
+function gc(id) {
+  if (!crm[id]) crm[id] = {status:'lead', starred:false, notes:[], activity:[]};
+  return crm[id];
+}
+
+var rF = 'all', sF = '', openId = null, fids = [], lastPg = 'contacts';
+
+// ═══════════════════ HELPERS ═══════════════════
+function ini(n) { return n.split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase(); }
+function col(n) { var h=0; for(var i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))%COLS.length; return COLS[h]; }
+function ts() { return new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function liSearch(name, company) { return 'https://www.linkedin.com/search/results/people/?keywords=' + encodeURIComponent((name||'') + ' ' + (company||'')); }
+
+function bge(ty) {
+  var m = {ceo:'bc CEO', md:'bm MD', dir:'bd Dir', cfo:'bf CFO', hnwi:'bh HNWI', other:'bo Sr'};
+  var v = (m[ty] || 'bo —').split(' ');
+  return '<span class="bge ' + v[0] + '">' + v[1] + '</span>';
+}
+function sbge(st) {
+  var m = {lead:'sl Lead', callback:'scb Call Back', followup:'sfu Follow Up', deposited:'sdp Deposited', notint:'sni Not Interested', noans:'sna No Answer'};
+  var parts = (m[st] || 'sl Lead').split(' ');
+  return '<span class="sb ' + parts[0] + '">' + parts.slice(1).join(' ') + '</span>';
+}
+function avEl(name, sz) {
+  sz = sz || 36;
+  var c = col(name);
+  return '<div style="width:'+sz+'px;height:'+sz+'px;border-radius:'+(sz>50?'14px':'9px')+';background:'+c+'22;color:'+c+';display:flex;align-items:center;justify-content:center;font-size:'+Math.floor(sz*.36)+'px;font-weight:700;flex-shrink:0;letter-spacing:-1px">'+ini(name)+'</div>';
+}
+function showToast(msg, clr) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = clr || 'var(--grn)'; t.style.color = '#0d1117';
+  t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 2200);
+}
+
+// ═══════════════════ COUNTS ═══════════════════
+function upCounts() {
+  var k = {lead:0, callback:0, followup:0, deposited:0, notint:0, noans:0};
+  DATA.forEach(function(r) { var s = gc(r.id).status || 'lead'; if(k[s]!==undefined) k[s]++; });
+  document.getElementById('cnt-l').textContent = k.lead;
+  document.getElementById('cnt-c').textContent = k.callback;
+  document.getElementById('cnt-f').textContent = k.followup;
+  document.getElementById('cnt-d').textContent = k.deposited;
+  document.getElementById('cnt-n').textContent = k.notint;
+  document.getElementById('cnt-na').textContent = k.noans;
+  document.getElementById('st-all').textContent = DATA.length;
+  document.getElementById('st-l').textContent = k.lead;
+  document.getElementById('st-c').textContent = k.callback;
+  document.getElementById('st-f').textContent = k.followup;
+  document.getElementById('st-d').textContent = k.deposited;
+  document.getElementById('st-n').textContent = k.notint;
+  document.getElementById('st-na').textContent = k.noans;
+  var starred = DATA.filter(function(r){return gc(r.id).starred;}).length;
+  var manualN = DATA.filter(function(r){return r.manual;}).length;
+  document.getElementById('sf').textContent = DATA.length + ' contacts · ' + manualN + ' added by you · ' + starred + ' starred';
+}
+
+// ═══════════════════ FILTER ═══════════════════
+function getFilt() {
+  var q = document.getElementById('srch').value.toLowerCase();
+  var sec = document.getElementById('secf').value;
+  var rep = document.getElementById('repf') ? document.getElementById('repf').value : '';
+  return DATA.filter(function(r) {
+    var ro = rF === 'all' || r.ty === rF;
+    var st = !sF || (gc(r.id).status || 'lead') === sF;
+    var se = !sec || r.s === sec;
+    var as = (gc(r.id).assigned || '').trim();
+    var rp = !rep || (rep === '__un' ? !as : as === rep);
+    var qm = !q || (r.n+r.c+r.t+r.s+r.p+as).toLowerCase().indexOf(q) >= 0;
+    return ro && st && se && qm && rp;
+  });
+}
+function setRF(ty, el) {
+  rF = ty;
+  document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});
+  (el || document.getElementById('fb-all')).classList.add('on');
+  applyF();
+}
+function filterSt(st) { sF = st; applyF(); }
+function applyF() { renderC(); }
+
+// ═══════════════════ RENDER CONTACTS ═══════════════════
+function renderC() {
+  var rows = getFilt();
+  fids = rows.map(function(r){return r.id;});
+  populateReps();
+  document.getElementById('tbl-c').textContent = rows.length + ' of ' + DATA.length + ' contacts';
+  var tb = document.getElementById('ctb');
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="ei">🔍</div>No contacts match your search or filter</div></td></tr>';
+    upCounts(); return;
+  }
+  var html = '';
+  rows.forEach(function(r) {
+    var s = gc(r.id);
+    html += '<tr onclick="openLd(' + r.id + ')">' +
+      '<td onclick="event.stopPropagation();qStar('+r.id+',this)">' +
+        '<button class="star' + (s.starred ? ' lit' : '') + '" tabindex="-1">★</button>' +
+      '</td>' +
+      '<td><div style="display:flex;align-items:center;gap:9px">' + avEl(r.n) +
+        '<div><div style="font-weight:500">' + r.n + '</div>' +
+        (r.ty==='hnwi' ? '<div style="font-size:10px;color:var(--amb)">' + r.w + '</div>' : '') +
+        (gc(r.id).assigned ? '<div style="font-size:10px;color:var(--acc)">👤 ' + gc(r.id).assigned + '</div>' : '') +
+        '</div></div></td>' +
+      '<td style="font-size:12px;color:var(--mut);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + r.c + '</td>' +
+      '<td>' + bge(r.ty) + '<span style="font-size:12px;color:var(--mut);margin-left:5px">' + r.t + '</span></td>' +
+      '<td style="font-size:12px;color:var(--mut)">' + r.s + '</td>' +
+      '<td style="font-size:12px;color:var(--mut);white-space:nowrap">' + r.p + '</td>' +
+      '<td>' + sbge(s.status || 'lead') + '</td>' +
+    '</tr>';
+  });
+  tb.innerHTML = html;
+  upCounts();
+}
+
+function qStar(id, el) {
+  var s = gc(id); s.starred = !s.starred; save();
+  el.querySelector('.star').classList.toggle('lit');
+  upCounts();
+}
+
+// ═══════════════════ LEAD DETAIL ═══════════════════
+function openLd(id) {
+  openId = id;
+  if (fids.indexOf(id) < 0) fids = DATA.map(function(r){return r.id;});
+  showPg('lead', null);
+  renderLd();
+}
+
+function renderLd() {
+  var r = null;
+  for (var i=0; i<DATA.length; i++) { if (DATA[i].id === openId) { r = DATA[i]; break; } }
+  if (!r) return;
+  var s = gc(r.id);
+  var idx = fids.indexOf(r.id);
+
+  document.getElementById('ld-pos').textContent = (idx+1) + ' / ' + fids.length;
+  document.getElementById('btn-prev').disabled = idx <= 0;
+  document.getElementById('btn-next').disabled = idx >= fids.length - 1;
+  document.getElementById('pg-ttl').textContent = r.n;
+
+  var c = col(r.n);
+  var av = document.getElementById('ld-av');
+  av.style.background = c + '22'; av.style.color = c; av.textContent = ini(r.n);
+
+  document.getElementById('ld-name').textContent = r.n;
+  document.getElementById('ld-role').textContent = r.t;
+  document.getElementById('ld-meta').innerHTML = bge(r.ty) + ' ' + sbge(s.status || 'lead');
+  document.getElementById('ld-co').textContent = r.c;
+  document.getElementById('ld-sec').textContent = r.s;
+  document.getElementById('ld-ph').innerHTML = '<a href="tel:' + r.p + '" style="color:var(--acc)">' + r.p + '</a>';
+  document.getElementById('ld-hq').innerHTML = '<a href="tel:' + r.hq + '" style="color:var(--acc)">' + r.hq + '</a>';
+  var em = r.e || '';
+  document.getElementById('ld-em').innerHTML = em ? '<a href="mailto:' + em + '" style="color:var(--acc)">' + em + '</a>' : '—';
+  document.getElementById('ld-li').innerHTML = '<a href="' + liSearch(r.n, r.c) + '" target="_blank" rel="noopener" style="color:var(--acc)">🔗 Find on LinkedIn</a>';
+  document.getElementById('ld-addr').textContent = r.addr;
+  document.getElementById('ld-w').textContent = r.w || '—';
+
+  document.querySelectorAll('.st-opt').forEach(function(el) {
+    el.classList.remove('on');
+    if (el.dataset.s === (s.status || 'lead')) el.classList.add('on');
+  });
+  document.getElementById('ld-star').className = 'star' + (s.starred ? ' lit' : '');
+  var asEl = document.getElementById('ld-as'); if (asEl) asEl.value = s.assigned || '';
+  var _adm = isAdmin();
+  var _be = document.getElementById('btn-edit'); if (_be) _be.style.display = _adm ? 'inline-flex' : 'none';
+  var _bd = document.getElementById('btn-del'); if (_bd) _bd.style.display = _adm ? 'inline-flex' : 'none';
+  document.getElementById('ld-ni').value = '';
+  renderNotes(); renderAct();
+}
+
+function navL(d) {
+  var i = fids.indexOf(openId);
+  var nxt = fids[i + d];
+  if (nxt !== undefined) { openId = nxt; renderLd(); }
+}
+
+function goBack() {
+  var titles = {contacts:'All Contacts', companies:'Companies', pipeline:'Pipeline', starred:'Starred'};
+  document.getElementById('pg-ttl').textContent = titles[lastPg] || 'All Contacts';
+  showPg(lastPg, null);
+}
+
+function setSt(st) {
+  if (!openId) return;
+  var s = gc(openId); s.status = st;
+  var lbl = {lead:'Lead', callback:'Call Back', followup:'Follow Up', deposited:'Deposited', notint:'Not Interested', noans:'No Answer'};
+  s.activity = s.activity || [];
+  s.activity.push({txt: 'Status changed to ' + lbl[st], t: ts()});
+  save();
+  document.querySelectorAll('.st-opt').forEach(function(el){el.classList.remove('on'); if(el.dataset.s===st) el.classList.add('on');});
+  var r = null; for(var i=0;i<DATA.length;i++){if(DATA[i].id===openId){r=DATA[i];break;}}
+  document.getElementById('ld-meta').innerHTML = bge(r.ty) + ' ' + sbge(st);
+  upCounts(); renderAct(); showToast('Status updated to ' + lbl[st]);
+}
+
+function toggleStarD() {
+  if (!openId) return;
+  var s = gc(openId); s.starred = !s.starred; save();
+  document.getElementById('ld-star').className = 'star' + (s.starred ? ' lit' : '');
+  upCounts(); showToast(s.starred ? '★ Starred' : 'Unstarred');
+}
+
+function saveNote() {
+  if (!openId) return;
+  var txt = document.getElementById('ld-ni').value.trim();
+  if (!txt) return;
+  var s = gc(openId);
+  s.notes = s.notes || [];
+  s.notes.unshift({id: Date.now(), txt: txt, t: ts()});
+  s.activity = s.activity || [];
+  s.activity.push({txt: 'Note saved', t: ts()});
+  save();
+  document.getElementById('ld-ni').value = '';
+  renderNotes(); renderAct();
+  var ok = document.getElementById('note-ok');
+  ok.style.display = 'inline'; setTimeout(function(){ok.style.display='none';}, 2000);
+  showToast('Note saved');
+}
+
+function delNote(nid) {
+  if (!openId) return;
+  var s = gc(openId);
+  s.notes = (s.notes || []).filter(function(n){return n.id !== nid;});
+  save(); renderNotes(); showToast('Note deleted', 'var(--red)');
+}
+
+function renderNotes() {
+  var s = gc(openId);
+  var notes = s.notes || [];
+  var el = document.getElementById('ld-notes');
+  if (!notes.length) { el.innerHTML = '<div style="font-size:12px;color:var(--dim)">No notes yet — add your first update above.</div>'; return; }
+  el.innerHTML = notes.map(function(n) {
+    return '<div class="note-item">' +
+      '<div class="note-time"><span>' + n.t + '</span><button class="note-del" onclick="delNote('+n.id+')">✕ delete</button></div>' +
+      '<div class="note-body">' + n.txt.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderAct() {
+  var s = gc(openId);
+  var act = s.activity || [];
+  var el = document.getElementById('ld-act');
+  if (!act.length) { el.innerHTML = '<div style="font-size:12px;color:var(--dim)">No activity yet</div>'; return; }
+  var rev = act.slice().reverse().slice(0, 20);
+  el.innerHTML = rev.map(function(a) {
+    return '<div class="act-item"><div class="act-dot"></div><div class="act-txt">' + a.txt + '</div><div class="act-time">' + a.t + '</div></div>';
+  }).join('');
+}
+
+// ═══════════════════ COMPANIES ═══════════════════
+function renderCos() {
+  var map = {};
+  DATA.forEach(function(r) {
+    if (!map[r.c]) map[r.c] = {s:r.s, p:r.hq, n:0, dep:0};
+    map[r.c].n++;
+    if ((gc(r.id).status||'lead') === 'deposited') map[r.c].dep++;
+  });
+  var html = '';
+  Object.keys(map).forEach(function(name) {
+    var info = map[name];
+    html += '<div class="cocard" onclick="filterCo(\'' + name.replace(/'/g,"\\'") + '\')">' +
+      '<div class="co-n">' + name + '</div>' +
+      '<div class="co-s">' + info.s + ' &middot; ' + info.p + '</div>' +
+      '<div class="co-row"><div><div class="co-sv">' + info.n + '</div><div class="co-sl">Contacts</div></div>' +
+      '<div><div class="co-sv" style="color:var(--dep)">' + info.dep + '</div><div class="co-sl">Deposited</div></div></div>' +
+    '</div>';
+  });
+  document.getElementById('cogrid').innerHTML = html;
+}
+function filterCo(name) {
+  document.getElementById('srch').value = name; showPg('contacts', null); applyF();
+}
+
+// ═══════════════════ PIPELINE ═══════════════════
+function renderPipe() {
+  var stages = [
+    {k:'lead', l:'📋 Leads', bg:'rgba(88,166,255,.15)', c:'var(--lead)'},
+    {k:'callback', l:'📞 Call Back', bg:'rgba(245,158,11,.15)', c:'var(--cb)'},
+    {k:'followup', l:'✉️ Follow Up', bg:'rgba(188,140,255,.15)', c:'var(--pur)'},
+    {k:'deposited', l:'✅ Deposited', bg:'rgba(63,185,80,.15)', c:'var(--dep)'},
+    {k:'notint', l:'🚫 Not Interested', bg:'rgba(248,81,73,.15)', c:'#ff7b72'},
+    {k:'noans', l:'🔕 No Answer', bg:'rgba(139,148,158,.15)', c:'#adbac7'}
+  ];
+  var html = '';
+  stages.forEach(function(st) {
+    var cards = DATA.filter(function(r){return (gc(r.id).status||'lead')===st.k;});
+    html += '<div class="pc">' +
+      '<div class="ph" style="background:'+st.bg+';color:'+st.c+'">' + st.l + '<span style="opacity:.7">' + cards.length + '</span></div>' +
+      '<div class="pb">';
+    if (cards.length) {
+      cards.forEach(function(r) {
+        html += '<div class="pcard" onclick="openLd('+r.id+')">' +
+          '<div class="pcard-n">' + r.n + '</div>' +
+          '<div class="pcard-c">' + r.c + '</div>' +
+          '<div style="margin-top:4px">' + bge(r.ty) + '</div></div>';
+      });
+    } else { html += '<div style="color:var(--dim);font-size:12px;text-align:center;padding:12px 0">—</div>'; }
+    html += '</div></div>';
+  });
+  document.getElementById('pipe').innerHTML = html;
+}
+
+// ═══════════════════ STARRED ═══════════════════
+function renderStar() {
+  var rows = DATA.filter(function(r){return gc(r.id).starred;});
+  document.getElementById('star-c').textContent = rows.length + ' contacts';
+  if (!rows.length) {
+    document.getElementById('stb').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="ei">⭐</div>Star contacts to see them here</div></td></tr>';
+    return;
+  }
+  var html = '';
+  rows.forEach(function(r) {
+    var s = gc(r.id);
+    html += '<tr onclick="openLd('+r.id+')">' +
+      '<td onclick="event.stopPropagation();qStar('+r.id+',this)"><button class="star lit" tabindex="-1">★</button></td>' +
+      '<td><div style="display:flex;align-items:center;gap:9px">' + avEl(r.n) + '<span style="font-weight:500">' + r.n + '</span></div></td>' +
+      '<td style="font-size:12px;color:var(--mut)">' + r.c + '</td>' +
+      '<td>' + bge(r.ty) + '</td>' +
+      '<td style="font-size:12px;color:var(--mut)">' + r.p + '</td>' +
+      '<td>' + sbge(s.status) + '</td>' +
+    '</tr>';
+  });
+  document.getElementById('stb').innerHTML = html;
+}
+
+// ═══════════════════ PAGE NAV ═══════════════════
+function showPg(name, btn) {
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.getElementById('pg-' + name).classList.add('on');
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+  if (btn) btn.classList.add('on');
+  var titles = {contacts:'All Contacts', companies:'Companies', pipeline:'Pipeline', starred:'Starred', users:'User Management'};
+  if (name !== 'lead') { document.getElementById('pg-ttl').textContent = titles[name] || name; lastPg = name; }
+  if (name === 'users') renderUsers();
+  if (name === 'companies') renderCos();
+  if (name === 'pipeline') renderPipe();
+  if (name === 'starred') renderStar();
+  if (name === 'contacts') renderC();
+}
+
+// ═══════════════════ EXPORT ═══════════════════
+function expCSV() {
+  var rows = getFilt();
+  var h = ['Name','Company','Title','Type','Sector','Phone','HQ Phone','Email','LinkedIn','Address','Net Worth','Status','Notes'];
+  var lines = [h.join(',')];
+  rows.forEach(function(r) {
+    var s = gc(r.id);
+    var notes = (s.notes||[]).map(function(n){return n.t+': '+n.txt;}).join(' | ');
+    lines.push([r.n,r.c,r.t,r.ty,r.s,r.p,r.hq,r.e||'',liSearch(r.n,r.c),r.addr,r.w,s.status||'lead',notes].map(function(v){return '"'+String(v).replace(/"/g,"'")+'"';}).join(','));
+  });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')], {type:'text/csv'}));
+  a.download = 'sl_crm_export.csv'; a.click();
+}
+
+// ═══════════════════ MANUAL CONTACTS ═══════════════════
+function loadManual(){ try { return JSON.parse(localStorage.getItem('slcrm_manual')||'[]'); } catch(e){ return []; } }
+function saveManual(arr){ try { localStorage.setItem('slcrm_manual', JSON.stringify(arr)); } catch(e){} }
+
+var editingId = null;
+function nextId(){ var mx=1000; for(var i=0;i<DATA.length;i++){ if(typeof DATA[i].id==='number' && DATA[i].id>mx) mx=DATA[i].id; } return mx+1; }
+function findRec(id){ for(var i=0;i<DATA.length;i++){ if(DATA[i].id===id) return DATA[i]; } return null; }
+function applyEdits(){ for(var id in crm){ if(crm[id] && crm[id].edits){ var r=null; for(var i=0;i<DATA.length;i++){ if(String(DATA[i].id)===String(id)){ r=DATA[i]; break; } } if(r){ for(var k in crm[id].edits){ r[k]=crm[id].edits[k]; } } } } }
+
+function openLeadForm(id){
+  editingId = (id===null||id===undefined) ? null : id;
+  var isEdit = editingId !== null;
+  var r = isEdit ? findRec(editingId) : null;
+  document.getElementById('modal-title').textContent = isEdit ? '✎ Edit lead' : '➕ Add a lead to your list';
+  document.getElementById('modal-save').textContent = isEdit ? 'Save changes' : 'Add to my leads';
+  document.getElementById('m-n').value = r ? (r.n||'') : '';
+  document.getElementById('m-c').value = r ? (r.c||'') : '';
+  document.getElementById('m-t').value = r ? (r.t||'') : '';
+  document.getElementById('m-ty').value = r ? (r.ty||'other') : 'other';
+  document.getElementById('m-s').value = r ? (r.s||'') : '';
+  document.getElementById('m-p').value = r ? (r.p||'') : '';
+  document.getElementById('m-em').value = r ? (r.e||'') : '';
+  document.getElementById('m-w').value = r ? (r.w||'') : '';
+  document.getElementById('m-addr').value = r ? (r.addr||'') : '';
+  document.getElementById('m-status').value = isEdit ? (gc(editingId).status||'lead') : 'lead';
+  var ma=document.getElementById('m-assigned'); if(ma) ma.value = isEdit ? (gc(editingId).assigned||'') : '';
+  document.getElementById('addModal').classList.add('show');
+  setTimeout(function(){var el=document.getElementById('m-n'); if(el) el.focus();},50);
+}
+function openAdd(){ openLeadForm(null); }
+function editCurrent(){ if(openId!==null && openId!==undefined) openLeadForm(openId); }
+function closeAdd(){ document.getElementById('addModal').classList.remove('show'); editingId=null; }
+
+function assignCurrent(){
+  if(openId===null || openId===undefined) return;
+  var v = document.getElementById('ld-as').value.trim();
+  var s = gc(openId); s.assigned = v;
+  s.activity = s.activity || []; s.activity.push({txt: v ? ('Assigned to '+v) : 'Unassigned', t: ts()});
+  save(); populateReps(); renderAct();
+  showToast(v ? ('✓ Assigned to '+v) : 'Unassigned');
+}
+function populateReps(){
+  var sel = document.getElementById('repf'); if(!sel) return;
+  var cur = sel.value, set = {};
+  DATA.forEach(function(r){ var a=(gc(r.id).assigned||'').trim(); if(a) set[a]=true; });
+  var names = Object.keys(set).sort();
+  var html = '<option value="">All reps</option><option value="__un">Unassigned</option>';
+  names.forEach(function(n){ html += '<option value="'+n.replace(/"/g,'&quot;')+'">'+n.replace(/</g,'&lt;')+'</option>'; });
+  sel.innerHTML = html; sel.value = cur;
+}
+
+function saveLead(){
+  var g = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+  var name = g('m-n');
+  if(!name){ showToast('Name is required', 'var(--red)'); document.getElementById('m-n').focus(); return; }
+  var st = g('m-status')||'lead';
+  if(editingId !== null){
+    var r = findRec(editingId);
+    if(r){
+      r.n=name; r.c=g('m-c')||'—'; r.t=g('m-t')||'—'; r.ty=g('m-ty')||'other';
+      r.s=g('m-s')||'—'; r.p=g('m-p')||'—'; r.hq=r.p; r.e=g('m-em'); r.w=g('m-w')||'—';
+      r.addr=g('m-addr')||r.addr||'—';
+      var s=gc(editingId);
+      s.edits={n:r.n,c:r.c,t:r.t,ty:r.ty,s:r.s,p:r.p,hq:r.hq,e:r.e,w:r.w,addr:r.addr};
+      s.status=st;
+      s.assigned=g('m-assigned');
+      s.activity=s.activity||[]; s.activity.push({txt:'Lead details edited',t:ts()});
+      save();
+      if(r.manual){ var arr=loadManual(); for(var j=0;j<arr.length;j++){ if(arr[j].id===editingId){ for(var k in s.edits){ arr[j][k]=s.edits[k]; } arr[j].status=st; break; } } saveManual(arr); }
+    }
+    closeAdd();
+    renderLd(); upCounts();
+    showToast('✓ Lead updated');
+    return;
+  }
+  var rec = {
+    id: nextId(), n:name, c:g('m-c')||'—', t:g('m-t')||'—', ty:g('m-ty')||'other',
+    s:g('m-s')||'—', p:g('m-p')||'—', hq:g('m-p')||'—', addr:g('m-addr')||'—',
+    w:g('m-w')||'—', e:g('m-em'), manual:true
+  };
+  var arr = loadManual(); arr.push(rec); saveManual(arr);
+  DATA.push(rec);
+  var s2 = gc(rec.id); s2.status = st; s2.assigned = g('m-assigned'); s2.activity = [{txt:'Lead added manually', t:ts()}]; save();
+  ['m-n','m-c','m-t','m-s','m-p','m-w','m-em','m-assigned'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var ty=document.getElementById('m-ty'); if(ty) ty.value='other';
+  var stt=document.getElementById('m-status'); if(stt) stt.value='lead';
+  closeAdd();
+  sF=''; rF='all';
+  document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});
+  var fbAll=document.getElementById('fb-all'); if(fbAll) fbAll.classList.add('on');
+  document.getElementById('secf').value=''; document.getElementById('srch').value='';
+  renderC(); upCounts();
+  showToast('✓ '+name+' added to your leads');
+}
+
+function delManual(id){
+  saveManual(loadManual().filter(function(r){ return r.id !== id; }));
+  renderManual(); upCounts();
+  showToast('Contact deleted', 'var(--red)');
+}
+
+function setManualStatus(id, st){
+  var arr = loadManual();
+  for(var i=0;i<arr.length;i++){ if(arr[i].id===id){ arr[i].status=st; break; } }
+  saveManual(arr); renderManual();
+}
+
+function toggleManualStar(id){
+  var arr = loadManual();
+  for(var i=0;i<arr.length;i++){ if(arr[i].id===id){ arr[i].starred=!arr[i].starred; break; } }
+  saveManual(arr); renderManual();
+}
+
+function renderManual(){
+  var arr = loadManual();
+  var c = document.getElementById('man-c'); if(c) c.textContent = arr.length + ' contact' + (arr.length===1?'':'s');
+  var tb = document.getElementById('mtb'); if(!tb) return;
+  if(!arr.length){
+    tb.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="ei">➕</div>No manual contacts yet — add your first one using the form above.</div></td></tr>';
+    return;
+  }
+  var esc = function(v){ return String(v||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var statuses = [['lead','Lead'],['callback','Call Back'],['followup','Follow Up'],['deposited','Deposited']];
+  var html = '';
+  arr.forEach(function(r){
+    var opts = statuses.map(function(s){ return '<option value="'+s[0]+'"'+(r.status===s[0]?' selected':'')+'>'+s[1]+'</option>'; }).join('');
+    html += '<tr>' +
+      '<td><button class="star'+(r.starred?' lit':'')+'" onclick="toggleManualStar(\''+r.id+'\')">★</button></td>' +
+      '<td><div style="display:flex;align-items:center;gap:9px">'+avEl(r.n)+'<div><div style="font-weight:500">'+esc(r.n)+'</div>'+(r.w?'<div style="font-size:10px;color:var(--amb)">'+esc(r.w)+'</div>':'')+'</div></div></td>' +
+      '<td style="font-size:12px;color:var(--mut)">'+esc(r.c)+'</td>' +
+      '<td style="font-size:12px;color:var(--mut)">'+esc(r.t)+'</td>' +
+      '<td style="font-size:12px;color:var(--mut)">'+esc(r.s)+'</td>' +
+      '<td style="font-size:12px;color:var(--mut);white-space:nowrap">'+(r.p?'<a href="tel:'+esc(r.p)+'" style="color:var(--acc)">'+esc(r.p)+'</a>':'—')+'</td>' +
+      '<td><select class="fsel" onchange="setManualStatus(\''+r.id+'\',this.value)">'+opts+'</select></td>' +
+      '<td><button class="note-del" style="font-size:12px" onclick="delManual(\''+r.id+'\')">✕ delete</button></td>' +
+    '</tr>';
+    var sub = '';
+    if(r.e) sub += '<a href="mailto:'+esc(r.e)+'" style="color:var(--acc)">'+esc(r.e)+'</a>';
+    sub += (sub?' · ':'')+'<a href="'+liSearch(r.n,r.c)+'" target="_blank" rel="noopener" style="color:var(--acc)">🔗 LinkedIn</a>';
+    if(r.note) sub += ' · <span style="color:var(--dim)">Note:</span> '+esc(r.note);
+    html += '<tr><td></td><td colspan="7" style="font-size:12px;color:var(--mut);padding-top:0">'+sub+'</td></tr>';
+  });
+  tb.innerHTML = html;
+}
+
+// ═══════════════════ AUTH & USERS ═══════════════════
+function loadUsers(){ try { return JSON.parse(localStorage.getItem('slcrm_users')||'[]'); } catch(e){ return []; } }
+function saveUsers(a){ try { localStorage.setItem('slcrm_users', JSON.stringify(a)); } catch(e){} }
+var BUILTIN_ADMIN = { username:'alhamdhi', password:'alhamdhi16227', role:'admin' };
+function getAllUsers(){
+  var stored = loadUsers().filter(function(x){ return x.username !== BUILTIN_ADMIN.username; });
+  return [BUILTIN_ADMIN].concat(stored);
+}
+var currentUser = null, authMode = 'login';
+function isAdmin(){ return !!(currentUser && currentUser.role==='admin'); }
+
+function initAuth(){
+  var sess = null;
+  try { sess = JSON.parse(localStorage.getItem('slcrm_session')||'null'); } catch(e){}
+  if(sess && sess.username){
+    var u = getAllUsers().filter(function(x){return x.username===sess.username;})[0];
+    if(u){ currentUser={username:u.username,role:u.role}; enterApp(); return; }
+  }
+  document.getElementById('authGate').style.display='flex';
+}
+function authSubmit(){
+  var u=document.getElementById('auth-user').value.trim();
+  var p=document.getElementById('auth-pass').value;
+  var msg=document.getElementById('auth-msg');
+  if(!u||!p){ msg.textContent='Enter a username and password.'; return; }
+  var found=getAllUsers().filter(function(x){return x.username===u && x.password===p;})[0];
+  if(!found){ msg.textContent='Wrong username or password.'; return; }
+  localStorage.setItem('slcrm_session', JSON.stringify({username:u}));
+  currentUser={username:found.username,role:found.role};
+  msg.textContent=''; document.getElementById('auth-pass').value=''; enterApp();
+}
+function logout(){ localStorage.removeItem('slcrm_session'); location.reload(); }
+function enterApp(){
+  document.getElementById('authGate').style.display='none';
+  var admin=isAdmin();
+  var un=document.getElementById('nav-users'); if(un) un.style.display = admin?'flex':'none';
+  var ab=document.getElementById('btn-addlead'); if(ab) ab.style.display = admin?'inline-flex':'none';
+  var who=document.getElementById('who'); if(who) who.textContent = currentUser.username + (admin?' • admin':' • rep');
+  renderC(); upCounts();
+}
+
+function renderUsers(){
+  if(!isAdmin()){ showPg('contacts',null); return; }
+  var users=getAllUsers();
+  var c=document.getElementById('users-c'); if(c) c.textContent=users.length+' user'+(users.length===1?'':'s');
+  var tb=document.getElementById('utb'); if(!tb) return;
+  var esc=function(v){return String(v||'').replace(/</g,'&lt;').replace(/"/g,'&quot;');};
+  tb.innerHTML = users.map(function(u){
+    var isMe = u.username===currentUser.username;
+    var isBuiltin = u.username===BUILTIN_ADMIN.username;
+    var act = isBuiltin ? '<span style="font-size:11px;color:var(--dim)">built-in owner</span>' : (isMe ? '<span style="font-size:11px;color:var(--dim)">you</span>' : '<button class="note-del" onclick="delUser(\''+esc(u.username)+'\')">✕ delete</button>');
+    return '<tr><td style="font-weight:500">'+esc(u.username)+'</td>'+
+      '<td>'+(u.role==='admin'?'<span class="sb sl">Admin</span>':'<span class="sb sdp">Rep</span>')+'</td>'+
+      '<td style="font-size:12px;color:var(--mut)">'+esc(u.password)+'</td>'+
+      '<td>'+act+'</td></tr>';
+  }).join('');
+}
+function addUser(){
+  if(!isAdmin()) return;
+  var n=document.getElementById('u-name').value.trim();
+  var p=document.getElementById('u-pass').value.trim();
+  var r=document.getElementById('u-role').value;
+  if(!n||!p){ showToast('Username and password required','var(--red)'); return; }
+  var users=loadUsers();
+  if(n===BUILTIN_ADMIN.username || users.some(function(x){return x.username===n;})){ showToast('Username already exists','var(--red)'); return; }
+  users.push({username:n,password:p,role:r}); saveUsers(users);
+  document.getElementById('u-name').value=''; document.getElementById('u-pass').value='';
+  renderUsers(); showToast('✓ User added');
+}
+function delUser(name){
+  if(!isAdmin() || name===currentUser.username || name===BUILTIN_ADMIN.username) return;
+  saveUsers(loadUsers().filter(function(x){return x.username!==name;}));
+  renderUsers(); showToast('User removed','var(--red)');
+}
+
+// ═══════════════════ DELETE LEADS ═══════════════════
+function loadDeleted(){ try { return JSON.parse(localStorage.getItem('slcrm_deleted')||'[]'); } catch(e){ return []; } }
+function saveDeleted(a){ try { localStorage.setItem('slcrm_deleted', JSON.stringify(a)); } catch(e){} }
+function delCurrent(){
+  if(!isAdmin() || openId===null || openId===undefined) return;
+  if(!confirm('Delete this lead permanently?')) return;
+  var id=openId;
+  var del=loadDeleted(); if(del.indexOf(id)<0){ del.push(id); saveDeleted(del); }
+  saveManual(loadManual().filter(function(r){return r.id!==id;}));
+  for(var i=0;i<DATA.length;i++){ if(DATA[i].id===id){ DATA.splice(i,1); break; } }
+  showToast('Lead deleted','var(--red)');
+  goBack(); renderC(); upCounts();
+}
+
+// ═══════════════════ INIT ═══════════════════
+loadManual().forEach(function(r){ if(!DATA.some(function(d){return d.id===r.id;})) DATA.push(r); });
+applyEdits();
+var _del = loadDeleted();
+if(_del.length){ DATA = DATA.filter(function(r){ return _del.indexOf(r.id)<0; }); }
+renderC();
+upCounts();
+initAuth();
+</script>
+</body>
+</html>
